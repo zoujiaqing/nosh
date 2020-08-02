@@ -1,0 +1,16 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=bsdstats service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/etc/periodic/monthly/300.statistics -nodelay
+# This is a pseudo-daemon that does not have a running process.
+RemainAfterExit=yes
+Restart=no
+
+[Install]
+WantedBy=workstation.target

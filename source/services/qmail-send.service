@@ -1,0 +1,12 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=Bernstein's qmail queue processing and delivery daemon
+
+[Service]
+ExecStart=prependpath PATH "%S/qmail/bin" qmail-start "./Maildir/"
+
+[Install]
+WantedBy=server.target

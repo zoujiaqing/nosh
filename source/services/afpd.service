@@ -1,0 +1,13 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=AppleTalk filing protocol daemon
+After=atalkd.service cnid_metad.service
+
+[Service]
+ExecStart=%p -d
+
+[Install]
+WantedBy=server.target

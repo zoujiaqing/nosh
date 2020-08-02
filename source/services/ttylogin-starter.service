@@ -1,0 +1,14 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=Start TTY login services on all kernel virtual terminals
+After=multi-user-pre.target
+
+[Service]
+ExecStart=%p
+RestartSec=1
+
+[Install]
+WantedBy=multi-user.target

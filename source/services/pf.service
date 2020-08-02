@@ -1,0 +1,20 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=packet filter service
+
+[Service]
+# The import procedure is expected to have populated this directory with rules and flags.
+EnvironmentDirectory=env
+ExecStartPre=pfctl -Fall
+ExecStartPre=pfctl -e -q
+ExecStart=pfctl -f "$rules" $flags
+ExecStopPost=pfctl -d -q
+# This is a pseudo-daemon that does not have a running process.
+RemainAfterExit=yes
+Restart=no
+
+[Install]
+WantedBy=workstation.target server.target

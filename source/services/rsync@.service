@@ -1,0 +1,14 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=rsync per-connection service
+
+[Service]
+EnvironmentDirectory=env
+# --no-detach is unnecessary for a per-connection server.
+ExecStart=%p --daemon ${config:+--config "${config}"}
+
+[Install]
+WantedBy=server.target

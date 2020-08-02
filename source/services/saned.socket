@@ -1,0 +1,15 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=SANE incoming socket
+
+[Socket]
+ListenStream=6566
+BindIPv6Only=both
+MaxConnections=2
+Accept=true
+
+[Install]
+WantedBy=server.target

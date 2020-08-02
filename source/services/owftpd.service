@@ -1,0 +1,17 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+# 1-wire is not UCSPI-TCP nor systemd "socket-activated"
+
+[Unit]
+Description=FTP service via 1-wire's customized version of oftpd
+After=owserver.socket
+
+[Service]
+EnvironmentDirectory=env
+User=%p
+ExecStart=%p --foreground ${flags}
+
+[Install]
+WantedBy=server.target

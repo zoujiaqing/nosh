@@ -1,0 +1,18 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=BSD wait for default route over DHCP.
+Before=networking.target
+
+[Service]
+Type=oneshot
+EnvironmentDirectory=env
+ExecStart=./helper
+# This is a pseudo-daemon that does not have a running process once ready.
+RemainAfterExit=yes
+Restart=no
+
+[Install]
+WantedBy=server.target

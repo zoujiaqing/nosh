@@ -1,0 +1,15 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=util-linux UUID listening daemon
+
+[Service]
+User=%p
+RuntimeDirectory=%p
+RuntimeDirectoryMode=0755
+ExecStart=%p --socket-activation
+
+[Install]
+WantedBy=workstation.target

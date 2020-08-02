@@ -1,0 +1,20 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=Yellow Pages server daemon
+Wants=rpcbind.service
+After=nisdomain.service
+
+[Service]
+Type=forking
+# The import procedure is expected to have populated this directory with flags.
+EnvironmentDirectory=env
+ExecStartPre=sh -c 'test -z "`domainname`" && echo "WARNING: NIS domainname is not set."'
+ExecStartPre=sh -c 'domain=`domainname` ; test -d /var/yp/$domain/. || echo "WARNING: /var/yp/$domain is not a directory."'
+ExecStart=rpc.%p ${flags}
+
+[Install]
+WantedBy=server.target
+

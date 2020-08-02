@@ -1,0 +1,13 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=Bonjour control socket
+
+[Socket]
+Backlog=2
+ListenStream=%t/%p/socket
+
+[Install]
+WantedBy=workstation.target

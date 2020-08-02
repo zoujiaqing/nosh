@@ -1,0 +1,17 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=cancel leftover Common Unix Printing Service jobs
+Before=org.cups.cupsd.service
+
+[Service]
+Type=oneshot
+ExecStart=cancel -a
+# This is a one-shot service that can be re-triggered by starting it again.
+#RemainAfterExit=1
+Restart=no
+
+[Install]
+WantedBy=workstation.target

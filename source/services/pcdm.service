@@ -1,0 +1,23 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=PC-BSD/TrueOS display manager
+After=ttylogin@ttyv8 ttylogin@tty9 hald
+
+[Service]
+EnvironmentDirectory=env
+# This is not strictly necessary, but it helps debug process ancestry with ps.
+SessionLeader=true
+# The shell running ./helper can handle this.
+LocalReaper=true
+RuntimeDirectory=PCDM
+RuntimeDirectoryMode=0755
+ExecStartPre=./helper allow-auto-login
+ExecStartPre=./helper check-bootflags
+ExecStart=./helper run
+ExecRestartPre=./helper fall-back-on-failure "$@"
+
+[Install]
+WantedBy=workstation.target

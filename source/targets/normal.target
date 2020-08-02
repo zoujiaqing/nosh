@@ -1,0 +1,12 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=Normal group target
+EarlySupervise=true
+
+[Service]
+User=nobody
+
+[Install]

@@ -1,0 +1,28 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=Populate the /%I directory tree from standard mtree info.
+DefaultDependencies=false
+Before=local-fs.target
+WantsMountsFor=/%I
+AfterMountsFor=/%I
+# We need the mount(s) for /usr/sbin/mtree and /etc/mtree/BSD.%i.dist in particular.
+WantsMountsFor=/usr/sbin/
+WantsMountsFor=/etc/mtree/
+AfterMountsFor=/usr/sbin/
+AfterMountsFor=/etc/mtree/
+After=local-fs-pre.target mdmfs@-%i
+
+[Service]
+Type=oneshot
+EnvironmentDirectory=env
+ExecStart=mtree -d -e -U -f /etc/mtree/BSD.%i.dist -p /%I
+# This is a one-shot service that can be re-triggered by starting it again.
+#RemainAfterExit=1
+Restart=no
+
+[Install]
+StoppedBy=shutdown.target
+WantedBy=local-fs.target

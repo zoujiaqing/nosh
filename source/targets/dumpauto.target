@@ -1,0 +1,13 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=Collection for all "auto" dump services
+
+[Service]
+User=nobody
+
+[Install]
+StoppedBy=shutdown.target
+WantedBy=sysinit.target

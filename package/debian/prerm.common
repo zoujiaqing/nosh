@@ -1,0 +1,8 @@
+# Maintainer script main for Debian
+case "$1" in
+	remove|purge)
+		pre_remove_funcs
+		pre_remove_extra "$@"
+		common
+		;;
+esac

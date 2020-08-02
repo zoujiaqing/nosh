@@ -1,0 +1,16 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=BSD %p for %i
+Wants=%p-log.service
+After=%p-log.service
+
+[Service]
+EnvironmentDirectory=env
+ExecStart=%p -d -s ${dun:+-D} ${sp:+-S} -C "${channel:-1}" ${addr:+-a "${addr}"} ${flags} -l "%I"
+
+[Install]
+WantedBy=static-networking.target
+#WantedBy=rfcomm-pppd-server.target

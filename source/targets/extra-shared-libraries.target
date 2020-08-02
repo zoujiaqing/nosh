@@ -1,0 +1,12 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=milestone that designates the availability of non-system shared libraries
+
+[Service]
+User=nobody
+
+[Install]
+StoppedBy=shutdown.target

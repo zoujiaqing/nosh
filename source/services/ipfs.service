@@ -1,0 +1,21 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=Save and restore NAT rules and state information across a reboot
+After=ipnat.service ipf.service
+Wants=ipnat.service
+
+[Service]
+EnvironmentDirectory=env
+ExecStart=%p -R -v
+ExecStopPost=mkdir -m 0700 /var/db/ipf
+ExecStopPost=chown root:wheel /var/db/ipf
+ExecStopPost=%p -W -v
+# This is a pseudo-daemon that does not have a running process.
+RemainAfterExit=yes
+Restart=no
+
+[Install]
+WantedBy=workstation.target

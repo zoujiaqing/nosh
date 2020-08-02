@@ -1,0 +1,14 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=Wi-Fi Protected Access client, Desktop Bus server
+
+[Service]
+Type=dbus
+EnvironmentDirectory=env
+ExecStart=%p -u
+
+[Install]
+WantedBy=workstation.target

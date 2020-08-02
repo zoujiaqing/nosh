@@ -1,0 +1,12 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=local socket used for %p
+
+[Socket]
+Backlog=2
+SocketMode=0644
+ListenStream=%t/fsck.progress
+Accept=false

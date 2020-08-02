@@ -1,0 +1,13 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=Name service switch daemon for SAMBA
+After=nmbd.service
+
+[Service]
+ExecStart=%p -F -s "${conf:-/usr/local/etc/smb4.conf}"
+
+[Install]
+WantedBy=server.target

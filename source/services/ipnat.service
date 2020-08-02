@@ -1,0 +1,22 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=BSD NAT rules service
+Requires=kmod@ipl
+
+[Service]
+# Marking this as oneshot means that it doesn't enter the "running" state until the accton command has exited.
+Type=oneshot
+EnvironmentDirectory=env
+# In theory we could take a lessw draconian approach and use -r instead of -C -F .
+# In practice, changing the rules file between start and stop would break that approach.
+ExecStart=${program} -v -F -C ${flags} -f ${rules}
+ExecStopPost=${program} -v -F -C ${flags}
+# This is a pseudo-daemon that does not have a running process.
+RemainAfterExit=yes
+Restart=no
+
+[Install]
+WantedBy=workstation.target

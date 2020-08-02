@@ -1,0 +1,20 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=PF logger daemon
+After=kmod@%p kmod@pf
+Requires=kmod@%p kmod@pf
+
+[Service]
+Type=oneshot
+EnvironmentDirectory=env
+ExecStart=ifconfig %p0 up ${syncdev:+syncdev ${syncdev}} ${syncpeer:+syncpeer ${syncpeer}} ${ifconfig}
+ExecStopPost=ifconfig %p0 down -syncdev -syncpeer
+# This is a pseudo-daemon that does not have a running process.
+RemainAfterExit=yes
+Restart=no
+
+[Install]
+WantedBy=workstation.target

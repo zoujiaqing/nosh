@@ -1,0 +1,12 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=Regular background program processing daemon by Thibault Godouet
+
+[Service]
+ExecStart=%p --foreground --nosyslog
+
+[Install]
+WantedBy=workstation.target

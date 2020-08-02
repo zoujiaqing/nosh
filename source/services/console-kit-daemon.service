@@ -1,0 +1,13 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=ConsoleKit daemon
+
+[Service]
+Type=dbus
+ExecStart=%p --no-daemon
+
+[Install]
+WantedBy=workstation.target

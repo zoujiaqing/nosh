@@ -1,0 +1,19 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=Guenter's bcron submission socket
+
+[Socket]
+Backlog=2
+ListenStream=%t/%p
+ListenStream=%t/.%p
+Socketmode=0666
+PassCredentials=true
+Accept=true
+MaxConnections=16
+UCSPIRules=false
+
+[Install]
+WantedBy=server.target

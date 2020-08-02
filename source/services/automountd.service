@@ -1,0 +1,15 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=Mount automounted filesystems on demand from the kernel
+Wants=kmod@autofs
+After=kmod@autofs nfsclient.service
+
+[Service]
+EnvironmentDirectory=env
+ExecStart=%p -d ${flags}
+
+[Install]
+WantedBy=workstation.target

@@ -1,0 +1,19 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=BusyBox mdev plug-and-play manager daemon
+DefaultDependencies=false
+Before=shutdown.target
+After=local-fs.target
+Conflicts=udev vdev suckless-mdev systemd-udev mdevd
+
+[Service]
+ExecStart=clearenv --keep-path plug-and-play-event-handler --verbose busybox mdev
+RestartSec=5
+# plug-and-play-event-handler understands the LISTEN protocol, so does not need StandardInput=socket.
+
+[Install]
+WantedBy=sysinit.target
+StoppedBy=shutdown.target

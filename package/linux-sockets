@@ -1,0 +1,7 @@
+acpid
+dbus-broker
+gpsd
+kpropd
+systemd-syslog-read
+systemd-rsyslogd
+systemd-syslogd

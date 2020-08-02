@@ -1,0 +1,13 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=uWSGI "Emperor" socket
+
+[Socket]
+ListenStream=%t/uwsgi.socket
+SocketMode=0660
+
+[Install]
+WantedBy=server.target

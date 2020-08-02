@@ -1,0 +1,17 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=nginx's Fast CGI wrapper server
+
+[Service]
+# FIXME: Is this really needed?
+systemdUserEnvironment=true
+User=http
+ExecStart=%p
+PrivateTmp=true
+StandardInput=socket
+
+[Install]
+WantedBy=server.target

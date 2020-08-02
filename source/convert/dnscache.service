@@ -1,0 +1,21 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=Bernstein's proxy DNS server daemon, modified to use systemd LISTEN_FDS protocol
+After=network-interfaces.service entropy.service
+Before=name-services.target
+
+[Service]
+User=dnscache-d
+EnvironmentUserOnly=true
+EnvironmentDirectory=env
+LimitDATA=3000000
+LimitNOFILE=250
+# The entropy service, which we are ordered after, ensures that /dev/urandom is re-seeded by the time that this starts up.
+ExecStart=pipe --grandchild --inwards dd if=/dev/urandom of=/dev/stdout bs=128 count=1 | %p
+RestartSec=0.2
+
+[Install]
+WantedBy=workstation.target

@@ -1,0 +1,21 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+# This has been superseded by utx.service .
+
+[Unit]
+Description=Enable Linux login accounting
+Before=multi-user-pre.target
+WantsMountsFor=/run
+AfterMountsFor=/run
+
+[Service]
+Type=oneshot
+ExecStart=touch /run/utmp
+# This is a one-shot service that can be re-triggered by starting it again.
+#RemainAfterExit=1
+Restart=no
+
+[Install]
+WantedBy=multi-user.target

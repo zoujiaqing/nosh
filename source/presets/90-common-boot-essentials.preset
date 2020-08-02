@@ -1,0 +1,54 @@
+#
+# Explicitly enable basic services and targets.
+#
+# This is not a systemd preset.  
+# It goes in a special nosh system-manager preset directory.
+# It is used by the nosh-bundles package in order to enable certain mandatory basics without which a system simply won't work.
+#
+
+# Ordinary services
+enable	cyclog@motd-dynamic.service
+enable	motd-dynamic.service
+enable	cyclog@network-interfaces.service
+enable	network-interfaces.service
+enable	cyclog@network-runtime.service
+enable	network-runtime.service
+enable	cyclog@entropy.service
+enable	entropy.service
+enable	cyclog@urandom.service
+enable	urandom.service
+enable  cyclog@nisdomain.service
+enable  nisdomain.service
+
+# Sysinit services
+enable	sysinit-log.service
+enable	sysinit-log.service
+enable	dmesg.service
+enable	hostname.service
+enable	hostname.sh.service
+enable	machine-id.service
+enable	emergency-login@console.service
+enable	fsck@-.service
+enable	mount@-.service
+
+# Targets
+enable	basic.target
+enable	finish-install.target
+enable	finish-update.target
+enable	fs-servers.target
+enable	local-fs-pre.target
+enable	local-fs.target
+enable	local-syslog.target
+enable	multi-user-pre.target
+enable	multi-user.target
+enable	reboot-after-install.target
+enable	reboot-after-update.target
+enable	remote-fs-pre.target
+enable	remote-fs.target
+enable	server.target
+enable	static-networking.target
+enable	swapauto.target
+enable	swaplate.target
+enable	sysinit.target
+enable	users.target
+enable	workstation.target

@@ -1,0 +1,14 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=Synergy Server Daemon for user %i
+
+[Service]
+EnvironmentDirectory=env
+ExecStart=%p --no-daemon --enable-crypto
+User=%i
+
+[Install]
+WantedBy=workstation.target

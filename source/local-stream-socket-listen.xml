@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- **************************************************************************
+.... For copyright and licensing terms, see the file named COPYING.
+.... **************************************************************************
+.-->
+<?xml-stylesheet href="docbook-xml.css" type="text/css"?>
+
+<refentry id="local-stream-socket-listen">
+
+<refmeta xmlns:xi="http://www.w3.org/2001/XInclude">
+<refentrytitle>local-stream-socket-listen</refentrytitle>
+<manvolnum>1</manvolnum>
+<refmiscinfo class="manual">user commands</refmiscinfo>
+<refmiscinfo class="source">nosh</refmiscinfo>
+<xi:include href="version.xml" />
+</refmeta>
+
+<refnamediv>
+<refname>local-stream-socket-listen</refname>
+<refpurpose>create a socket listening for incoming AF_LOCAL stream connections and chain</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv>
+<cmdsynopsis>
+<command>local-stream-socket-listen</command>
+<arg choice='opt'>--backlog <replaceable>number</replaceable></arg>
+<arg choice='opt'>--uid <replaceable>number</replaceable></arg>
+<arg choice='opt'>--gid <replaceable>number</replaceable></arg>
+<arg choice='opt'>--mode <replaceable>number</replaceable></arg>
+<arg choice='opt'>--pass-credentials</arg>
+<arg choice='opt'>--pass-security</arg>
+<arg choice='opt'>--upstart-compatibility</arg>
+<arg choice='opt'>--systemd-compatibility</arg>
+<arg choice='req'><replaceable>path</replaceable></arg>
+<arg choice='req'><replaceable>next-prog</replaceable></arg>
+</cmdsynopsis>
+</refsynopsisdiv>
+
+<refsection><title>Description</title>
+
+<para>
+<command>local-stream-socket-listen</command> is a chain-loading utility that opens a local domain stream socket bound to <replaceable>path</replaceable>, executes a call to <citerefentry><refentrytitle>listen</refentrytitle><manvolnum>2</manvolnum></citerefentry>, sets the socket to file descriptor 3+<replaceable>n</replaceable> (where <replaceable>n</replaceable> is the number of already-opened listening file descriptors), closing whatever that descriptor was, and then chain loads to <replaceable>next-prog</replaceable> with the <citerefentry><refentrytitle>execvp</refentrytitle><manvolnum>3</manvolnum></citerefentry> function.
+</para>
+
+<para>
+<replaceable>next-prog</replaceable> may contain its own command line options, which <command>local-stream-socket-listen</command> will ignore.
+
+</para>
+<para>
+The <arg choice='plain'>--backlog</arg> option specifies the allowed backlog level (defaulting to 5) of outstanding not-yet-accepted connections to the socket.
+</para>
+
+<para>
+After binding the socket to <replaceable>path</replaceable>, <command>local-stream-socket-listen</command> changes the owner UID of the socket to that specified with the <arg choice='plain'>--uid</arg> command line argument (if supplied), changes the GID of the socket to that specified with the <arg choice='plain'>--gid</arg> command line argument (if supplied), and changes the permissions of the socket to those specified with the <arg choice='plain'>--mode</arg> command line argument (if supplied).
+The normal conventions for numbers apply, so for octal permissions use a leading zero.
+Symbolic permissions and account names are not supported.
+</para>
+
+<para>
+The <arg choice='plain'>--pass-credentials</arg> option causes <command>local-stream-socket-listen</command> to request the <code>SO_PASSCRED</code> socket option.
+The <arg choice='plain'>--pass-security</arg> option causes it to request the <code>SO_PASSSEC</code> socket option.
+</para>
+
+<para>
+The <arg choice='plain'>--upstart-compatibility</arg> option causes <command>local-stream-socket-listen</command> to set the <envar>UPSTART_FDS</envar> environment variable to 3, and the <envar>UPSTART_EVENTS</envar> environment variable to <literal>socket</literal>.
+This is for compatibility with d&#xe6;mons that expect to be run under <citerefentry><refentrytitle>upstart</refentrytitle><manvolnum>1</manvolnum></citerefentry>.
+</para>
+
+<para>
+The <arg choice='plain'>--systemd-compatibility</arg> option is for compatibility with d&#xe6;mons that expect to be run under <citerefentry><refentrytitle>systemd</refentrytitle><manvolnum>1</manvolnum></citerefentry>.
+It causes <command>local-stream-socket-listen</command> to set the <envar>LISTEN_FDS</envar> environment variable to the number of listening file descriptors, and the <envar>LISTEN_PID</envar> environment variable to its own process ID.
+If the command is started up with the <envar>LISTEN_FDS</envar> and the <envar>LISTEN_PID</envar> environment variables already appropriately set, the number of listening file descriptors is taken from them and increased by one, otherwise the number of file descriptors is 1.
+Thus a list of listening file descriptors can be built up with multiple commands, as long as they all use the <arg choice='plain'>--systemd-compatibility</arg> option.
+</para>
+
+<para>
+For compatibility with d&#xe6;mons that expect to be run under <citerefentry><refentrytitle>inetd</refentrytitle><manvolnum>1</manvolnum></citerefentry>, inheriting the listening socket as their standard input, simply use <command>fdmove</command> <arg choice="plain">0</arg> <arg choice="plain">3</arg> in <replaceable>next-prog</replaceable>.
+See <citerefentry><refentrytitle>fdmove</refentrytitle><manvolnum>1</manvolnum></citerefentry>.
+</para>
+
+</refsection><refsection><title>Security</title>
+
+<para>
+Because of an oversight in operating systems that prevents
+<citerefentry><refentrytitle>fchmod</refentrytitle><manvolnum>2</manvolnum></citerefentry>
+and
+<citerefentry><refentrytitle>fchown</refentrytitle><manvolnum>2</manvolnum></citerefentry>
+from working with bound local domain sockets, <command>local-stream-socket-listen</command> calls
+<citerefentry><refentrytitle>chmod</refentrytitle><manvolnum>2</manvolnum></citerefentry>
+and
+<citerefentry><refentrytitle>chown</refentrytitle><manvolnum>2</manvolnum></citerefentry>
+on <replaceable>path</replaceable>.
+Because of an oversight in operating systems that prevents
+<citerefentry><refentrytitle>bind</refentrytitle><manvolnum>2</manvolnum></citerefentry>
+from being able to re-use old local domain socket addresses,
+<command>local-stream-socket-listen</command> attempts to delete, with
+<citerefentry><refentrytitle>unlink</refentrytitle><manvolnum>2</manvolnum></citerefentry>, 
+any file named <replaceable>path</replaceable> before binding.
+An attacker who could change what file is denoted by 
+<replaceable>path</replaceable> in between the calls to
+<citerefentry><refentrytitle>bind</refentrytitle><manvolnum>2</manvolnum></citerefentry>
+and the call to
+<citerefentry><refentrytitle>chmod</refentrytitle><manvolnum>2</manvolnum></citerefentry>
+and
+<citerefentry><refentrytitle>chown</refentrytitle><manvolnum>2</manvolnum></citerefentry>
+could change the permissions and ownership of any file in the filesystem.
+An attacker who could change what file is denoted by 
+<replaceable>path</replaceable> before the call to
+<citerefentry><refentrytitle>unlink</refentrytitle><manvolnum>2</manvolnum></citerefentry>
+could unlink any file in the filesystem.
+</para>
+
+<para>
+To avoid these security holes, ensure that none of the directories in the path to <replaceable>path</replaceable> (not just the final one) are writable by untrusted users or groups; and ensure that untrusted programs cannot supply <replaceable>path</replaceable>.
+</para>
+
+</refsection><refsection><title>Usage</title>
+
+<para>
+<command>local-stream-socket-listen</command> can be used as a simple d&#xe6;mon monitored by
+<citerefentry><refentrytitle>service-manager</refentrytitle><manvolnum>1</manvolnum></citerefentry>
+that chains to
+<citerefentry><refentrytitle>local-stream-socket-accept</refentrytitle><manvolnum>1</manvolnum></citerefentry>.
+Together, the two replace
+<citerefentry><refentrytitle>unixserver</refentrytitle><manvolnum>1</manvolnum></citerefentry>
+from ucspi-unix.
+<command>local-stream-socket-listen</command> overlaps the functionality of
+<citerefentry><refentrytitle>inetd</refentrytitle><manvolnum>1</manvolnum></citerefentry>
+and
+<citerefentry><refentrytitle>systemd</refentrytitle><manvolnum>1</manvolnum></citerefentry>,
+with which only the
+<citerefentry><refentrytitle>local-stream-socket-accept</refentrytitle><manvolnum>1</manvolnum></citerefentry>
+half of the pair would be needed (in the systemd-recommended configuration of
+<code>Accept=false</code> sockets).
+</para>
+
+<para>
+To change the process' UID and GID after a successful call to <citerefentry><refentrytitle>listen</refentrytitle><manvolnum>2</manvolnum></citerefentry>, simply chain through <citerefentry><refentrytitle>setuidgid</refentrytitle><manvolnum>1</manvolnum></citerefentry>.
+</para>
+
+</refsection>
+
+<refsection><title>See also</title>
+<variablelist>
+	<varlistentry>
+		<term><citerefentry><refentrytitle>tcp-socket-listen</refentrytitle><manvolnum>1</manvolnum></citerefentry></term>
+		<term><citerefentry><refentrytitle>udp-socket-listen</refentrytitle><manvolnum>1</manvolnum></citerefentry></term>
+		<term><citerefentry><refentrytitle>local-datagram-socket-listen</refentrytitle><manvolnum>1</manvolnum></citerefentry></term>
+		<term><citerefentry><refentrytitle>local-seqpacket-socket-listen</refentrytitle><manvolnum>1</manvolnum></citerefentry></term>
+		<term><citerefentry><refentrytitle>netlink-datagram-socket-listen</refentrytitle><manvolnum>1</manvolnum></citerefentry></term>
+		<listitem>
+			<para>
+				listeners for other protocols
+			</para>
+		</listitem>
+	</varlistentry>
+</variablelist>
+
+</refsection><refsection><title>Author</title>
+<para><author><personname><firstname>Jonathan</firstname> <surname>de Boyne Pollard</surname></personname></author></para>
+</refsection>
+
+</refentry>

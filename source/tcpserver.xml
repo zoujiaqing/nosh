@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- **************************************************************************
+.... For copyright and licensing terms, see the file named COPYING.
+.... **************************************************************************
+.-->
+<?xml-stylesheet href="docbook-xml.css" type="text/css"?>
+
+<refentry id="tcpserver">
+
+<refmeta xmlns:xi="http://www.w3.org/2001/XInclude">
+<refentrytitle>tcpserver</refentrytitle>
+<manvolnum>1</manvolnum>
+<refmiscinfo class="manual">user commands</refmiscinfo>
+<refmiscinfo class="source">nosh</refmiscinfo>
+<xi:include href="version.xml" />
+</refmeta>
+
+<refnamediv>
+<refname>tcpserver</refname>
+<refpurpose>listen for incoming TCP connections and spawn a child per conection</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv>
+<cmdsynopsis>
+<command>tcpserver</command> 
+<arg choice='opt'>-O</arg> 
+<arg choice='opt'>-P</arg> 
+<arg choice='opt'>-q</arg> 
+<arg choice='opt'>-Q</arg> 
+<arg choice='opt'>-R</arg> 
+<arg choice='opt'>-H</arg> 
+<arg choice='opt'>-d</arg> 
+<arg choice='opt'>-b <replaceable>backlog</replaceable></arg> 
+<arg choice='opt'>-v</arg> 
+<arg choice='opt'>-D</arg> 
+<arg choice='opt'>-o</arg> 
+<arg choice='opt'>-l <replaceable>localname</replaceable></arg> 
+<arg choice='opt'>-c <replaceable>connlimit</replaceable></arg> 
+<arg choice='opt'>-U</arg> 
+<arg choice='opt'>-B <replaceable>banner</replaceable></arg> 
+<arg choice='req'><replaceable>host</replaceable></arg> 
+<arg choice='req'><replaceable>port</replaceable></arg> 
+<arg choice='req'><replaceable>next-prog</replaceable></arg>
+</cmdsynopsis>
+</refsynopsisdiv>
+
+<refsection><title>Description</title>
+
+<para>
+<command>tcpserver</command> is a utility that opens a TCP socket bound to <replaceable>host</replaceable> and <replaceable>port</replaceable>, and loops forever, accepting TCP connections and (for each such connection) spawning <replaceable>next-prog</replaceable>, closing the listening socket in the child process and setting the connected socket as the child process' standard input and standard output.
+It devolves to a combination of <citerefentry><refentrytitle>tcp-socket-listen</refentrytitle><manvolnum>1</manvolnum></citerefentry>, <citerefentry><refentrytitle>tcp-socket-accept</refentrytitle><manvolnum>1</manvolnum></citerefentry>, <citerefentry><refentrytitle>line-banner</refentrytitle><manvolnum>1</manvolnum></citerefentry>, and <citerefentry><refentrytitle>setuidgid_fromenv</refentrytitle><manvolnum>1</manvolnum></citerefentry>.
+</para>
+
+<para>
+<replaceable>next-prog</replaceable> may contain its own command line options, which <command>tcpserver</command> will ignore.
+</para>
+
+<para>
+The <arg choice='plain'>-O</arg>, <arg choice='plain'>-P</arg>, <arg choice='plain'>-q</arg>, <arg choice='plain'>-Q</arg>, <arg choice='plain'>-H</arg>, <arg choice='plain'>-R</arg>, and <arg choice='plain'>-d</arg> command-line options (which originate with the Bernstein tool by this name) simply would enact what are already the defaults, are thus present solely for compatibility, and are thus ignored.
+</para>
+
+<para>
+The <arg choice='plain'>-b</arg> command-line option is passed through to <command>tcp-socket-listen</command>, with any of its option arguments.
+The <arg choice='plain'>-v</arg>, <arg choice='plain'>-D</arg>, <arg choice='plain'>-o</arg> <arg choice='plain'>-l</arg>, and <arg choice='plain'>-c</arg> options are passed through to <command>tcp-socket-accept</command>, with any of their option arguments.
+The <arg choice='plain'>-U</arg> command-line option causes <command>setuidgid-fromenv</command> to be invoked.
+The <arg choice='plain'>-B <replaceable>banner</replaceable></arg> command-line option causes <command>line-banner</command> to be invoked, with <replaceable>banner</replaceable> as the banner.
+</para>
+
+<refsection><title>Security</title>
+<para>
+The options that permit attackers to run IDENT and DNS servers and inject attacker-supplied data into the server process' environment, are expressly not supported.
+</para>
+</refsection>
+
+</refsection>
+<refsection><title>Author</title>
+<para><author><personname><firstname>Jonathan</firstname> <surname>de Boyne Pollard</surname></personname></author></para>
+</refsection>
+
+</refentry>

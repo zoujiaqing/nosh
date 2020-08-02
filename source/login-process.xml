@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- **************************************************************************
+.... For copyright and licensing terms, see the file named COPYING.
+.... **************************************************************************
+.-->
+<?xml-stylesheet href="docbook-xml.css" type="text/css"?>
+
+<refentry id="login-process">
+
+<refmeta xmlns:xi="http://www.w3.org/2001/XInclude">
+<refentrytitle>login-process</refentrytitle>
+<manvolnum>1</manvolnum>
+<refmiscinfo class="manual">user commands</refmiscinfo>
+<refmiscinfo class="source">nosh</refmiscinfo>
+<xi:include href="version.xml" />
+</refmeta>
+
+<refnamediv>
+<refname>login-process</refname>
+<refpurpose>chain-load utility for recording obsolete login accounting entries</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv>
+<cmdsynopsis>
+<command>login-process</command>
+<arg choice='opt'>--id <replaceable>id</replaceable></arg>
+<arg choice='req'><replaceable>next-prog</replaceable></arg>
+</cmdsynopsis>
+</refsynopsisdiv>
+
+<refsection><title>Description</title>
+
+<para>
+<command>login-process</command> is a chain-loading utility that is used for compatibility with the obsolete <filename>/etc/inittab</filename> mechanism where <citerefentry><refentrytitle>login</refentrytitle><manvolnum>1</manvolnum></citerefentry> is not properly dealing with login accounting (as modern versions do and should).
+It chain loads to <replaceable>next-prog</replaceable> with the <citerefentry><refentrytitle>execvp</refentrytitle><manvolnum>3</manvolnum></citerefentry> function.
+</para>
+
+<para>
+It determins a terminal character device filename.
+This can be either a virtual or a real terminal.
+It primarily expects to inherit this as the value of the <envar>TTY</envar> environment variable, which it expects to have been set up by a program such as <citerefentry><refentrytitle>vc-get-tty</refentrytitle><manvolnum>1</manvolnum></citerefentry> or <citerefentry><refentrytitle>pty-get-tty</refentrytitle><manvolnum>1</manvolnum></citerefentry>.  
+If the environment variable is absent, it calls the <citerefentry><refentrytitle>ttyname</refentrytitle><manvolnum>3</manvolnum></citerefentry> library function.
+</para>
+
+<para>
+<replaceable>next-prog</replaceable> may contain its own command line options, which <command>login-process</command> will ignore.
+</para>
+
+<para>
+<command>login-process</command> makes no alteration to process state.
+</para>
+
+<refsection><title>BSD behaviour</title>
+
+<para>
+BSD operating systems have never had <filename>/etc/inittab</filename> and this command simply does nothing at all.
+There are simply no or empty "active terminal login" table entries for terminals where no-one is currently logged in; and the active terminal login table is indexed by terminal device (base)name, not by some "id" out of <filename>/etc/inittab</filename>.
+</para>
+
+<para>
+This utility need not be used at all on such operating systems.
+</para>
+
+</refsection>
+
+<refsection><title>Obsolete Unix System 5 Release 3 behaviour on Linux</title>
+
+<para>
+In the obsolete <filename>/etc/inittab</filename> system the active terminal login table is indexed by the "id" field from <filename>/etc/inittab</filename> or by its process ID field, depending from who is doing the lookup.
+The system manager process only knows the "id" and doesn't know the terminal device name, which isn't a field in <filename>/etc/inittab</filename>.
+The various "getty" and "login" programs know their own process IDs, but don't know the "id" field of the <filename>/etc/inittab</filename> record that spawned them.
+</para>
+
+<para>
+The system manager process is expected to have created a <citerefentry><refentrytitle>utmpx</refentrytitle><manvolnum>3</manvolnum></citerefentry> active terminal login table entry of type <code>INIT_PROCESS</code> with the process ID of the forked process and the "id" field from the <filename>/etc/inittab</filename> record; and the "getty" process (of whatever stripe) is expected to use its process ID to find that record and change it to <code>LOGIN_PROCESS</code>.
+All this so that the <citerefentry><refentrytitle>login</refentrytitle><manvolnum>1</manvolnum></citerefentry> command can use its process ID to find that record and change it to <code>USER_PROCESS</code>.
+</para>
+
+<para>
+<command>login-process</command> emulates this.
+There simply is no <filename>/etc/inittab</filename> on systems managed by <citerefentry><refentrytitle>system-manager</refentrytitle><manvolnum>1</manvolnum></citerefentry>, systemd, upstart, or other system managers.
+So it determines a fictitious "id" field from the value of the terminal device name, unless forcibly overridden with the <arg choice='plain'>--id</arg> command option.
+There is no fixed convention for this, as there is no enforced convention between IDs and terminal device names in the old <filename>/etc/inittab</filename> system.
+</para>
+
+<itemizedlist>
+<listitem><para>
+It discards any <filename>/dev/</filename> or <filename>/run/dev/</filename> prefix.
+In an ideal world, this would be the sole mechanism and the ID would be what results.
+However, this is not what other softwares, including GUI terminal emulators, do.
+</para></listitem>
+<listitem><para>
+If the remaining terminal line name begins with "<filename>vc</filename>" and ends with "<filename>/tty</filename>", as is conventionally the case with user-space virtual terminals, the ID is the string less the "<filename>/tty</filename>" suffix.
+</para></listitem>
+<listitem><para>
+If it can discard any further <filename>tty</filename>, <filename>pty</filename>, <filename>tts</filename>, or <filename>pts</filename> prefixes, the remainder becomes the ID; otherwise, it discards any further non-digit characters up until the first digit character.
+</para></listitem>
+</itemizedlist>
+
+<informalexample>
+<para>
+So, for examples:
+</para>
+<itemizedlist>
+<listitem><para>
+"<filename>/run/dev/vc1/tty</filename>" becomes "<code>vc1</code>".
+</para></listitem>
+<listitem><para>
+"<filename>/dev/pts/5</filename>" becomes "<code>/5</code>".
+</para></listitem>
+<listitem><para>
+"<filename>/dev/tty5</filename>" becomes "<code>5</code>".
+</para></listitem>
+<listitem><para>
+"<filename>/dev/ttyv5</filename>" becomes "<code>v5</code>".
+</para></listitem>
+</itemizedlist>
+</informalexample>
+
+<para>
+Ironically, this song and dance is exactly what GUI terminal emulator programs have <emphasis>already</emphasis> had to do <emphasis>anyway</emphasis>, inventing a nonce "id" and adding new <code>USER_PROCESS</code> records with no existing record to overwrite.
+Real/virtual terminal login can just take the same approach, and entirely do away with the <code>INIT_PROCESS</code> and <code>LOGIN_PROCESS</code> states like both FreeBSD/DragonFly BSD and GUI terminal emulator programs do.
+The "login" programs have to wait around for logout <emphasis>anyway</emphasis>, because PAM does not work correctly if there is no session cleanup at logout, and that is where the active terminal login table record should be changed to <code>DEAD_PROCESS</code> too.
+</para>
+
+<para>
+It is not in fact necessary at all to use <command>login-process</command> on systems managed by <citerefentry><refentrytitle>system-manager</refentrytitle><manvolnum>1</manvolnum></citerefentry>, systemd, upstart, or almost all other system managers.
+</para>
+
+<refsection><title>Security</title>
+
+<para>
+The program requires permission to read and write to the active terminal login table and append (write) to the terminal login log.
+Lack of permission will result in the program aborting with an error.
+</para>
+
+</refsection>
+
+</refsection>
+
+</refsection>
+
+<refsection><title>Author</title>
+<para><author><personname><firstname>Jonathan</firstname> <surname>de Boyne Pollard</surname></personname></author></para>
+</refsection>
+
+</refentry>

@@ -1,0 +1,13 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=Log packets filtered by ipfilter or ipnat
+
+[Service]
+EnvironmentDirectory=env
+ExecStart=%p ${flags}
+
+[Install]
+WantedBy=workstation.target

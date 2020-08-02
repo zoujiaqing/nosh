@@ -1,0 +1,20 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=Save/restore randomness
+Before=netif sshd sshdgenkeys
+
+[Service]
+EnvironmentDirectory=env
+ExecStart=./helper load
+# Re-generate the saved randomness as soon as it has been used to re-seed.
+ExecStart=./helper save
+ExecStopPost=./helper save
+# This is a pseudo-daemon that does not have a running process.
+RemainAfterExit=yes
+Restart=no
+
+[Install]
+WantedBy=workstation.target

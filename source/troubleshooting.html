@@ -1,0 +1,219 @@
+<title>Troubleshooting</title>
+<link rel="Up" href="index.html" title="nosh Guide" />
+<h1>
+Troubleshooting
+</h1>
+
+<h2 style="border-bottom: 1px solid grey">
+A service is continually switching between the "running" and "failed" states, and shows an uptime of 0 seconds (or 1 second).
+</h2>
+
+<p>
+<a href="http://jdebp.eu./FGA/daemontools-service-not-staying-up.html">
+This service is failing to start properly; investigate its log and check its run script.</a>
+</p>
+
+<h2 style="border-bottom: 1px solid grey">
+A service is stuck in the "starting", "failed", or "stopping" states.
+</h2>
+
+<p>
+The <a href="commands/service-control.xml"><code>service-control</code> command</a> causes the service manager to send signals to the service process(es).
+Those processes include the ones that run in the "starting", "failed", and "stopping" states &mdash; namely the <code>start</code>, <code>restart</code>, and <code>stop</code> programs and anything that they in their turn run.
+So just terminate the process(es) with <code>service-control --terminate</code>.
+</p>
+
+<p>
+Bear in mind that some "sysinit" services do things in their <code>start</code> programs that may take a long time.
+The "fsck@" service <code>fsck</code>s a volume in its "starting" state, for example.
+These long-running initialization actions are <em>not</em> necessarily stuck just because they take a long time.
+</p>
+
+<h2 style="border-bottom: 1px solid grey">
+The system bootstrap never fully completes.
+</h2>
+
+<p>
+Troubleshoot this by:
+</p>
+<ul>
+<li><p>
+&hellip; looking at the logs, if possible.
+The system manager's own log output can be seen in <code>/run/system-manager/log/</code>.
+</p>
+<li><p>
+&hellip; watching the bootstrap process interactively.
+Start the system in rescue mode, then bring up the "normal" target interactively with:
+<p>
+<blockquote><pre>system-control start --verbose normal</pre></blockquote>
+</li>
+</ul>
+
+<p>
+Watch for things that are "BLOCKED" and note how far through the boot process <code>system-control</code> gets.
+</p>
+
+<h3 style="border-bottom: 1px dotted grey">
+<code>system-control</code> experiences a conflict
+</h3>
+
+<p>
+The most common conflict is one between kernel virtual terminals and user-mode virtual terminals &mdash; the <code>ttylogin@ttyv1</code> service conflicting with the <code>console-fb-realizer@head0</code> service.
+This is hard, but not impossible, to cause.
+Simply disable the one or the other service.
+</p>
+
+<h3 style="border-bottom: 1px dotted grey">
+Volumes are not mounted, and services needing those volumes to be mounted cannot start
+</h3>
+
+<p>
+The <code>mount@</code> services that mount volumes are not enabled in the base service bundles package.
+</p>
+
+<p>
+Specifically, if you have your <code>/usr</code> and <code>/var</code> filesystems on separate volumes and you haven't enabled the <code>mount@-usr</code> and <code>mount@-var</code> services then many other services will fail not only to start but even to be found by the "normal" target when <code>system-control</code> goes looking for its dependencies.
+</p>
+
+<p>
+You must enable these services.
+This can be done explicitly, or by <a href="external-formats.html">the autoconfiguration system of <code>redo</code> scripts</a>, which will create and enable mount services based upon the contents of <code>/etc/fstab</code>.
+</p>
+
+<h3 style="border-bottom: 1px dotted grey">
+Services remain blocked
+</h3>
+
+<p>
+In this scenario service A specifies that it is to be started after service B (or service B has specified that it is to start before service A), one or both services are directly or indirectly wanted by the "normal" target, and service B has failed to start.
+</p>
+
+<p>
+Look at service B's own logs, and the output of
+</p>
+<blockquote><pre>system-control status B</pre></blockquote>
+
+<h3 style="border-bottom: 1px dotted grey">
+The service manager reports errors when attempting to load a service
+</h3>
+
+<p>
+The most common cause of this is that you have an enabled service whose <code>supervise</code> directory is on a read-only filesystem.
+The service manager is thus unable to create/update the control/status API files in that directory.
+</p>
+
+<p>
+Notice that "sysinit" services <a href="startup-and-shutdown.html#sysinit">locate their <code>supervise</code> directories under <code>/run/service-bundles/early-supervise/</code> for this very reason</a>.
+The point where they are loaded by the service manager is well before the point that the <code>/var</code> or <code>/</code> volumes are mounted read-write.
+</p>
+
+<h3 style="border-bottom: 1px dotted grey">
+<code>fsck</code> ran and then nothing else started
+</h3>
+
+<p>
+The initial non-interactive <code>fsck</code> of mounted filesystems usually runs in "preen mode", which proceeds relatively quickly.
+If, however filesystem tunable options cause a full <code>fsck</code> to run, <code>system-control</code> can sometimes time out waiting for the filesystem check services to finish.
+This is because there's a time limit to how long <code>system-control</code> will attempt to bring the system up.
+</p>
+
+<p>
+The limit is there so that a system that fails to fully come up <em>can be brought down</em>.
+Without the time limit, the on-going attempts to bring the system up would defeat the process of trying to bring the system down, if an administrator chose to reboot.
+And this is the remedial action to take here, in fact.
+Simply reboot the system after all <code>fsck</code>s have successfully run, and the <code>monitor-fsck-progress</code> service has removed its user interface.
+</p>
+
+<h2 style="border-bottom: 1px solid grey">
+An <code>/etc/fstab</code> entry is ignored.
+</h2>
+
+<p>
+The conversion utility ignores entries that are not marked as <code>rw</code>, <code>rq</code>, <code>ro</code>, or <code>sw</code>.
+Ensure that the entry is marked with a correct mount type.
+</p>
+
+<p>
+The conversion utility uses the conventional C library functions <code>getfsent()</code> et al. to parse the <code>/etc/fstab</code> file.
+It does not use its own private custom parser.
+These C library functions do not behave as do the custom parsers in some other utilities.
+</p>
+
+<p>
+In particular, note that <code>getfsent()</code> <em>does not</em> determine the <code>sw</code> status from the filesystem type field as some custom parsers do.
+The BSDs explicitly require, as stated in their <code>/etc/fstab</code> manuals, that swap entries be marked as <code>sw</code>.
+The same requirement actually exists in the GNU C library, but its manual does not mention this and some custom parsers deviate from the behaviour of the GNU C library and thereby make it erroneously appear that this is not necessary.
+</p>
+
+<h2 style="border-bottom: 1px solid grey">
+GNOME Terminal refuses to start.
+</h2>
+
+<p>
+The GNOME Terminal command does little more than send its environment and arguments via the Desktop Bus to the <code>org.GNOME.Terminal</code> service.
+Unfortunately, this service is excessively fussy and easy to break.
+</p>
+
+<ul>
+<li><p>
+Despite the fact that the GNOME Terminal server is supposed to be capable of talking to multiple X displays, and so should start up in a "not connected to any displays" mode initially, it actually attempts to connect to an X display at startup.
+So not only must it have the <code>DISPLAY</code> environment variable <a href="per-user-user-services.html#environment">set in its per-service environment</a>, that must denote a currently active X display that will accept cookie-less connections from the GNOME Terminal service.
+</p><p>
+This is just an outright bug.
+</p><p>
+You can transfer the environment variables from another, already running, interactive session in another terminal emulator:
+</p>
+<pre>system-control --user set-service-env org.gnome.Terminal DISPLAY "$DISPLAY"
+system-control --user set-service-env org.gnome.Terminal XAUTHORITY "$XAUTHORITY"</pre>
+</li>
+<li><p>
+The GNOME Terminal server requires that a UTF-8 locale be configured in its <code>LANG</code> environment variable, and refuses to start if it is not.
+It cannot be just the <code>C</code> locale.
+This is configured in the environment of the service definition itself, in the usual way:
+</p>
+<pre>system-control --user set-service-env org.gnome.Terminal LANG en_GB.UTF-8</pre>
+</p><p>
+An important proviso is that the named locale must exist as a locale definition on the system; the GNOME Terminal server requiring this, too.
+Some systems have a <code>C.UTF-8</code> locale definition (including those that have adopted <a href="https://sourceware.org/glibc/wiki/Proposals/C.UTF-8">the GNU C library project</a>); some do not.
+</p></li>
+<li><p>
+The GNOME Terminal client must be able to talk to the correct Desktop Bus broker for the user, and so the <code>gnome-terminal</code> command will fail if invoked under the aegis of another user account, via <code>su</code>, <code>sudo</code>, or similar.
+This is because it uses the effective user ID that it is run under to construct the conventional location of <a href="gazetteer.html#user-runtime">the per-user runtime directory</a>, and it (of course) accesses that runtime directory with the access rights of that effective user ID.
+</p></li>
+<li><p>
+The GNOME Terminal client requires that the Desktop Bus broker for the user be running in the first place.
+This is of course the <a href="per-user-user-services.html">per-user user service</a> named <code>dbus</code>, which must be enabled:</p>
+<pre>system-control --user enable dbus</pre>
+<p>
+The <a href="per-user-system-services.html">system-level service that runs per-user service management</a> in the first place must also be running.
+</p></li>
+<li><p>
+The GNOME Terminal server requires the ability to talk to a whole bunch of <em>other</em> per-user Desktop Bus servers.
+These must be enabled so that the per-user Desktop Bus broker can trigger the per-user service manager <a href="per-user-dbus-demand-start.html">to auto-start them on demand</a>.
+</p><p>
+The services will include the GVFS D&aelig;mon, GVFS HAL Monitor, GVFS Photo Volume Monitor (sic! For a terminal emulator.), GNOME Configuration D&aelig;mon, and Assistive Technology Service Provider Accessibility Services Bus.
+You can usually see which ones GNOME Terminal server is attempting to auto-start by inspecting the log of the <code>dbus</code> service:
+</p>
+<pre>system-control --user status --log-lines 40 dbus</pre>
+</p></li>
+</ul>
+
+<!--
+<h2 style="border-bottom: 1px solid grey">
+One cannot halt, reboot, or power off in emergency mode
+</h2>
+
+<p>
+Deliberately, the <code>emergency-login@console</code> service does not conflict with the <code>shutdown</code> target.
+(If it were to do so, one could not bring up emergency login after a failed shutdown using the "kbrequest" mechanism.)
+</p>
+
+<p>
+Furthermore, the <a href="startup-and-shutdown.html">shutdown process</a> involves the service manager attempting to bring down all remaining running services.
+But interactive shell programs generally outright ignore the <code>SIGTERM</code> signal.
+</p>
+
+<p>
+So if you issue a <a href="commands/shutdown.xml"><code>shutdown</code></a> or (say) a <a href="commands/system-control.xml"><code>system-control&nbsp;poweroff</code></a> command in the emergency login session, <em>you must also exit the emergency login session</em> before the system and service managers will finish the final part of the shutdown process.
+</p>
+-->

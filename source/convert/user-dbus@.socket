@@ -1,0 +1,19 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=Per-user "Desktop" bus socket
+After=user-runtime@%I
+Requires=user-runtime@%I
+
+[Socket]
+SocketUser=%I
+SocketMode=0700
+Backlog=2
+#MaxConnections=2
+ListenStream=%t/user/%I/bus
+Accept=false
+
+[Install]
+WantedBy=sockets.target

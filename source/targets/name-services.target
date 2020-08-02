@@ -1,0 +1,12 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=DNS milestone
+
+[Service]
+User=nobody
+
+[Install]
+StoppedBy=shutdown.target

@@ -1,0 +1,12 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=Polipo proxy server
+
+[Service]
+ExecStart=%p
+
+[Install]
+WantedBy=workstation.target

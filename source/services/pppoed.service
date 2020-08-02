@@ -1,0 +1,14 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=PPP over Ethernet daemon
+
+[Service]
+# The import procedure is expected to have populated this directory with flags, interface, and provider.
+EnvironmentDirectory=env
+ExecStart=/usr/libexec/%p ${flags} -p ${provider} ${interface}
+
+[Install]
+WantedBy=server.target

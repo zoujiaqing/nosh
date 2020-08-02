@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- **************************************************************************
+.... For copyright and licensing terms, see the file named COPYING.
+.... **************************************************************************
+.-->
+<?xml-stylesheet href="docbook-xml.css" type="text/css"?>
+
+<refentry id="fifo-listen">
+
+<refmeta xmlns:xi="http://www.w3.org/2001/XInclude">
+<refentrytitle>fifo-listen</refentrytitle>
+<manvolnum>1</manvolnum>
+<refmiscinfo class="manual">user commands</refmiscinfo>
+<refmiscinfo class="source">nosh</refmiscinfo>
+<xi:include href="version.xml" />
+</refmeta>
+
+<refnamediv>
+<refname>fifo-listen</refname>
+<refpurpose>open the read end of a FIFO and chain</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv>
+<cmdsynopsis>
+<command>fifo-listen</command>
+<arg choice='opt'>--uid <replaceable>number</replaceable></arg>
+<arg choice='opt'>--gid <replaceable>number</replaceable></arg>
+<arg choice='opt'>--mode <replaceable>number</replaceable></arg>
+<arg choice='opt'>--systemd-compatibility</arg>
+<arg choice='req'><replaceable>path</replaceable></arg>
+<arg choice='req'><replaceable>next-prog</replaceable></arg>
+</cmdsynopsis>
+</refsynopsisdiv>
+
+<refsection><title>Description</title>
+
+<para>
+<command>fifo-listen</command> is a chain-loading utility that opens the read end of the FIFO at <replaceable>path</replaceable>, sets the FIFO to file descriptor 3+<replaceable>n</replaceable> (where <replaceable>n</replaceable> is the number of already-opened listening file descriptors), closing whatever that descriptor was, and then chain loads to <replaceable>next-prog</replaceable> with the <citerefentry><refentrytitle>execvp</refentrytitle><manvolnum>3</manvolnum></citerefentry> function.
+</para>
+
+<para>
+<replaceable>next-prog</replaceable> may contain its own command line options, which <command>fifo-listen</command> will ignore.
+</para>
+
+<para>
+After opening it, using the permissions specified with the <arg choice='plain'>--mode</arg> command line argument (if supplied), <command>fifo-listen</command> changes the owner UID of the FIFO to that specified with the <arg choice='plain'>--uid</arg> command line argument (if supplied), and changes the GID of the FIFO to that specified with the <arg choice='plain'>--gid</arg> command line argument (if supplied).
+The normal conventions for numbers apply, so for octal permissions use a leading zero.
+Symbolic permissions and account names are not supported.
+</para>
+
+<para>
+The <arg choice='plain'>--systemd-compatibility</arg> option is for compatibility with d&#xe6;mons that expect to be run under <citerefentry><refentrytitle>systemd</refentrytitle><manvolnum>1</manvolnum></citerefentry>.
+It causes <command>fifo-listen</command> to set the <envar>LISTEN_FDS</envar> environment variable to the number of listening file descriptors, and the <envar>LISTEN_PID</envar> environment variable to its own process ID.
+If the command is started up with the <envar>LISTEN_FDS</envar> and the <envar>LISTEN_PID</envar> environment variables already appropriately set, the number of listening file descriptors is taken from them and increased by one, otherwise the number of file descriptors is 1.
+Thus a list of listening file descriptors can be built up with multiple commands, as long as they all use the <arg choice='plain'>--systemd-compatibility</arg> option.
+</para>
+
+<para>
+For compatibility with d&#xe6;mons that expect to be run under <citerefentry><refentrytitle>inetd</refentrytitle><manvolnum>1</manvolnum></citerefentry>, inheriting the listening socket as their standard input, simply use <command>fdmove</command> <arg choice="plain">0</arg> <arg choice="plain">3</arg> in <replaceable>next-prog</replaceable>.
+See <citerefentry><refentrytitle>fdmove</refentrytitle><manvolnum>1</manvolnum></citerefentry>.
+</para>
+
+</refsection>
+<refsection><title>Portability</title>
+
+<para>
+The POSIX standard does not specify that FIFOs can be opened in read-write mode, only specifying that they can be opened in either write-only or read-only modes.
+Some operating systems, however, provide the ability to open FIFOs in read-write mode as an extension.
+Doing so has the advantage of not terminating the listening server whenever individual clients disconnect.
+<command>fifo-listen</command> attempts to open the FIFO in read-write mode on such operating systems, using read-only mode on the others.
+</para>
+
+</refsection>
+<refsection><title>Security</title>
+
+<para>
+<command>fifo-listen</command> will successfully open, change ownership of, and change permissions of <replaceable>path</replaceable> even if it is not a FIFO.
+This is to allow its use with non-FIFO files such as <filename>/dev/kmsg</filename>, <filename>/proc/kmsg</filename>i, and <filename>/dev/klog</filename>.
+</para>
+
+</refsection>
+<refsection><title>Author</title>
+<para><author><personname><firstname>Jonathan</firstname> <surname>de Boyne Pollard</surname></personname></author></para>
+</refsection>
+
+</refentry>

@@ -1,0 +1,12 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=wicd service
+
+[Service]
+ExecStart=%p -f
+
+[Install]
+WantedBy=server.target

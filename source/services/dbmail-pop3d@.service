@@ -1,0 +1,13 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=DBmail POP3 daemon
+
+[Service]
+EnvironmentDirectory=env
+ExecStart=%p -n
+
+[Install]
+WantedBy=server.target

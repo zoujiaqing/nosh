@@ -1,0 +1,20 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=%p with configuration %i
+Wants=%p-log.service
+After=%p-log.service
+
+[Service]
+Type=oneshot
+EnvironmentDirectory=env
+ExecStart=%i -C -f %I
+ExecStopPost=%i -D -f %I
+# This is a pseudo-daemon that does not have a running process.
+RemainAfterExit=yes
+Restart=no
+
+[Install]
+WantedBy=workstation.target

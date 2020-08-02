@@ -1,0 +1,20 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=%p service
+After=local-fs.target
+
+[Service]
+# The import procedure is expected to have populated this directory with on_flags, off_flags, and check_flags.
+EnvironmentDirectory=env
+ExecStartPre=quotacheck "${check_flags}"
+ExecStart=quotaon "${on_flags}"
+ExecStopPost=quotaoff "${off_flags}"
+# This is a pseudo-daemon that does not have a running process.
+RemainAfterExit=yes
+Restart=no
+
+[Install]
+WantedBy=workstation.target

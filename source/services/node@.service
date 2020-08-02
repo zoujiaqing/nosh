@@ -1,0 +1,12 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=%p service for %i
+
+[Service]
+ExecStart=%p %i
+
+[Install]
+WantedBy=server.target

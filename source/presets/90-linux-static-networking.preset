@@ -1,0 +1,43 @@
+#
+# Explicitly enable static networking services and targets.
+#
+# This is not a systemd preset.  
+# It goes in a special nosh system-manager preset directory.
+# It is used by the nosh-bundles package in order to enable certain mandatory basics without which a system simply won't work.
+#
+
+# Ordinary services
+enable	static_arp@*.service
+enable	static_ndp@*.service
+enable	static_ip4@*.service
+enable	static_ip6@*.service
+enable	netif@*.service
+enable	ifconfig@*.service
+enable	ifscript@*.service
+disable	natd@*.service
+enable	dhclient@*.service
+enable	dhcpcd@*.service
+enable	udhcpc@*.service
+disable	hostap@*.service
+enable	wpa_supplicant@*.service
+disable	ppp@*.service
+disable	spppcontrol@*.service
+disable	rfcomm_pppd@*.service
+disable	wlandebug@*.service
+enable	snort@*.service
+enable	ifconfig-log
+disable	natd-log
+enable	dhclient-log
+enable	dhcpcd-log
+enable	udhcpc-log
+disable	hostap-log
+enable	wpa_supplicant-log
+disable	rfcomm_ppp-log
+disable	sppp-log
+disable	ppp-log
+enable	snort-log
+disable	wlandebug-log
+
+# Sysinit services
+
+# Targets

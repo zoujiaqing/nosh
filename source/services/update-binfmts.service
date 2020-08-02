@@ -1,0 +1,18 @@
+#
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=additional executable binary formats
+
+[Service]
+Type=oneshot
+ExecStart=%p --enable
+ExecStopPost=%p --disable
+# This is a pseudo-daemon that does not have a running process.
+RemainAfterExit=yes
+Restart=no
+
+[Install]
+WantedBy=workstation.target

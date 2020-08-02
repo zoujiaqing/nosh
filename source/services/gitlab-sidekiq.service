@@ -1,0 +1,20 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=GitLab Sidekiq Worker
+Requires=redis.service
+Wants=mysqld.service postgresql.service
+After=redis.service mysqld.service postgresql.service
+
+[Service]
+# FIXME: Is this really needed?
+systemdUserEnvironment=true
+User=git
+WorkingDirectory=/home/git/gitlab
+Environment=RAILS_ENV=production
+ExecStart=bindle exec "sidekiq -d -q post_receive -q mailer -q system_hook -q project_web_hook -q gitlab_shell -q common -q default -e production"
+
+[Install]
+WantedBy=server.target

@@ -1,0 +1,24 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+# This has been superseded by direct conversion of /etc/fstab to service bundles.
+
+[Unit]
+Description=Mount the %I filesystem
+DefaultDependencies=false
+Before=local-fs.target
+After=local-fs-pre.target
+
+[Service]
+# Marking this as oneshot means that it doesn't enter the "running" state until the mount command has exited.
+Type=oneshot
+ExecStart=%p %I
+ExecStopPost=u%p %I
+# This is a pseudo-daemon that does not have a running process.
+RemainAfterExit=yes
+Restart=no
+
+[Install]
+StoppedBy=shutdown.target
+WantedBy=local-fs.target

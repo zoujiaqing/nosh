@@ -1,0 +1,392 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- **************************************************************************
+.... For copyright and licensing terms, see the file named COPYING.
+.... **************************************************************************
+.-->
+<?xml-stylesheet href="docbook-xml.css" type="text/css"?>
+
+<refentry id="service-manager">
+
+<refmeta xmlns:xi="http://www.w3.org/2001/XInclude">
+<refentrytitle>service-manager</refentrytitle>
+<manvolnum>1</manvolnum>
+<refmiscinfo class="manual">user commands</refmiscinfo>
+<refmiscinfo class="source">nosh</refmiscinfo>
+<xi:include href="version.xml" />
+</refmeta>
+
+<refnamediv>
+<refname>service-manager</refname>
+<refpurpose>service manager</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv>
+<cmdsynopsis>
+<command>service-manager</command>
+</cmdsynopsis>
+</refsynopsisdiv>
+
+<refsection><title>Description</title>
+
+<para>
+<command>service-manager</command> manages a set of services, allowing their service processes
+to be programmatically brought up and down, and providing automatic restart
+upon failure.
+</para>
+
+<para>
+It expects file descriptor 3 to be a (datagram) socket that has been set up to listen for incoming datagrams.
+This is its main control socket, through which it receives requests to load, unload, and pipe together services from utilities such as <citerefentry><refentrytitle>service-dt-scanner</refentrytitle><manvolnum>1</manvolnum></citerefentry> and <citerefentry><refentrytitle>system-control</refentrytitle><manvolnum>8</manvolnum></citerefentry>.
+It creates individual control FIFOs for each service, through which it receives requests to send signals the service and bring it up or down, from utilities such as <citerefentry><refentrytitle>service-control</refentrytitle><manvolnum>1</manvolnum></citerefentry>.
+</para>
+
+<para>
+<citerefentry><refentrytitle>system-manager</refentrytitle><manvolnum>8</manvolnum></citerefentry> invokes <command>service-manager</command> with the appropriate socket (which it sets up itself) and output directed to a logging d&#xe6;mon.
+So also does <citerefentry><refentrytitle>per-user-manager</refentrytitle><manvolnum>1</manvolnum></citerefentry>.
+Alternatively, <command>service-manager</command> can be started by <citerefentry><refentrytitle>local-datagram-socket-listen</refentrytitle><manvolnum>1</manvolnum></citerefentry>, which will set up the appropriate socket.
+(<command>service-manager</command> can even be started as a "socket-activated" d&#xe6;mon by <citerefentry><refentrytitle>systemd</refentrytitle><manvolnum>1</manvolnum></citerefentry> with the systemd-recommended <code>Accept=false</code>.)
+</para>
+
+</refsection><refsection><title>Services</title>
+
+<para>
+Each service comprises several files in the filesystem, contained in two directories.
+(<citerefentry><refentrytitle>system-control</refentrytitle><manvolnum>1</manvolnum></citerefentry> builds upon these two with further directories, to construct a service bundle, for the details of which see its manual page.)
+</para>
+
+<refsection><title>Service directories</title>
+
+<para>
+A <replaceable>service directory</replaceable> is the current directory in which a service process is run.  
+It contains:
+</para>
+
+<itemizedlist>
+
+<listitem>
+<para>
+a <filename>run</filename> file, which is the executable file for the service process itself;  
+</para>
+</listitem>
+
+<listitem>
+<para>
+a <filename>start</filename> file, which is the executable file to be run when a service is first brought up (but not when it is automatically restarted);
+</para>
+</listitem>
+
+<listitem>
+<para>
+a <filename>restart</filename> file, which is the executable file to be run when a service has ended (to determine whether it should automatically be restarted);
+</para>
+</listitem>
+
+<listitem>
+<para>
+a <filename>stop</filename> file, which is the executable file to be run when a service is finally taken down (but not when it is automatically restarted);
+</para>
+</listitem>
+
+</itemizedlist>
+
+<para>
+Although there is nothing to stop them from being binaries, the executable files are usually scripts interpreted by <citerefentry><refentrytitle>nosh</refentrytitle><manvolnum>1</manvolnum></citerefentry>, <citerefentry><refentrytitle>execlineb</refentrytitle><manvolnum>1</manvolnum></citerefentry>, or a shell.
+They set up various parts of the process state (using commands such as <citerefentry><refentrytitle>softlimit</refentrytitle><manvolnum>1</manvolnum></citerefentry>, <citerefentry><refentrytitle>setenv</refentrytitle><manvolnum>1</manvolnum></citerefentry>, <citerefentry><refentrytitle>setuidgid</refentrytitle><manvolnum>1</manvolnum></citerefentry>, and <citerefentry><refentrytitle>open-controlling-tty</refentrytitle><manvolnum>1</manvolnum></citerefentry>) and then chain to the service program proper.
+</para>
+
+<para>
+A service directory can also contain:
+</para>
+<itemizedlist>
+<listitem>
+<para>
+ancillary files required by the service itself, varying from service to service.  
+For examples:
+</para>
+<itemizedlist>
+<listitem>
+<para>
+A <citerefentry><refentrytitle>tcp-socket-accept</refentrytitle><manvolnum>1</manvolnum></citerefentry> service could have an access-control database managed by <citerefentry><refentrytitle>ucspi-socket-rules-check</refentrytitle><manvolnum>1</manvolnum></citerefentry>.
+</para>
+</listitem>
+<listitem>
+<para>
+Many services have <filename>env</filename> subdirectories read by <citerefentry><refentrytitle>envdir</refentrytitle><manvolnum>1</manvolnum></citerefentry> in order to control d&#xe6;mon process environment variables.
+</para>
+</listitem>
+</itemizedlist>
+</listitem>
+<listitem>
+<para>
+further files used by other tools.
+For examples:
+</para>
+<itemizedlist>
+<listitem>
+<para>
+A <filename>down</filename> file indicates to <citerefentry><refentrytitle>system-control</refentrytitle><manvolnum>1</manvolnum></citerefentry>, <citerefentry><refentrytitle>service-is-enabled</refentrytitle><manvolnum>1</manvolnum></citerefentry>, and <citerefentry><refentrytitle>service-dt-scanner</refentrytitle><manvolnum>1</manvolnum></citerefentry> that a service should not be auto-started at bootstrap.
+</para>
+</listitem>
+<listitem>
+<para>
+A <filename>remain</filename> file indicates to <citerefentry><refentrytitle>system-control</refentrytitle><manvolnum>1</manvolnum></citerefentry> that a service should be marked as "run on empty", so that it is considered still running even if it has no processes.
+</para>
+</listitem>
+<listitem>
+<para>
+A <filename>ready_after_run</filename> file indicates to <citerefentry><refentrytitle>system-control</refentrytitle><manvolnum>1</manvolnum></citerefentry> that a service should be considered "ready" after it has finished running, and has either remained in the running state with no processes or transitioned to the stopped state with a prior run recorded in its status.
+</para>
+</listitem>
+<listitem>
+<para>
+A <filename>use_hangup</filename> file indicates to <citerefentry><refentrytitle>system-control</refentrytitle><manvolnum>1</manvolnum></citerefentry> that a service should (additionally) be sent the <code>SIGHUP</code> signal when shutting it down.
+</para>
+</listitem>
+<listitem>
+<para>
+A <filename>no_kill_signal</filename> file indicates to <citerefentry><refentrytitle>system-control</refentrytitle><manvolnum>1</manvolnum></citerefentry> that a service should not be sent the <code>SIGKILL</code> signal when shutting it down.
+</para>
+</listitem>
+</itemizedlist>
+</listitem>
+</itemizedlist>
+<para>
+These files are ignored by <command>service-manager</command>.
+</para>
+
+<para>
+The service manager does not need write access to the service directory or to any of the executables within it.
+This permits service directories (as long as the services themselves do not require write access to their service directories) to reside on read-only volumes.
+</para>
+
+</refsection><refsection><title>Supervise directories</title>
+
+<para>
+A <replaceable>supervise directory</replaceable> provides the control/status API for the service supervisor.  
+It contains:
+</para>
+
+<itemizedlist>
+
+<listitem>
+<para>
+an <filename>ok</filename> FIFO that does nothing more than signify that the service manager has loaded the service;
+</para>
+</listitem>
+
+<listitem>
+<para>
+a <filename>control</filename> FIFO through which commands to control the individual service process (for which see <citerefentry><refentrytitle>service-control</refentrytitle><manvolnum>1</manvolnum></citerefentry>) are sent;
+</para>
+</listitem>
+
+<listitem>
+<para>
+a <filename>status</filename> file that contains a record of the service process ID, start time, and control state; and
+</para>
+</listitem>
+
+<listitem>
+<para>
+a <filename>lock</filename> file (compatible with <citerefentry><refentrytitle>setlock</refentrytitle><manvolnum>1</manvolnum></citerefentry>) that prevents the service manager from re-using an active supervise directory.
+</para>
+</listitem>
+
+</itemizedlist>
+
+<para>
+The service manager requires read-write access to these files, and write access to the supervise directory itself, as it creates the files if they do not exist to start with.
+However, it does not require write access to the supervise directory once the files have been created.
+(The <citerefentry><refentrytitle>supervise</refentrytitle><manvolnum>1</manvolnum></citerefentry> program in daemontools repeatedly re-creates the <filename>status</filename> file, in contrast.)
+</para>
+
+<para>
+Control of services and access to service status is thus subject to ordinary permissions and ACLs on these files.
+</para>
+
+<para>
+Bernstein's daemontools employs an 18-byte <filename>status</filename> file.
+daemontools has no notion of "starting", "failing", or "stopping" states for services, and its status file provides only simple binary "up" or "down" state information.
+Guenter's daemontools-encore employs a 19-byte <filename>status</filename> that includes extra state information for the aforementioned states.  
+<command>service-manager</command> employs an 87-byte <filename>status</filename> that adds exit status and timestamp information for the start, run, restart, and stop programs.
+The <filename>status</filename> file contents are:
+</para>
+
+<orderedlist>
+<listitem><para>12-byte TAI64N timestamp of last service status change event.</para></listitem>
+<listitem><para>4-byte current main process ID in host byte order, <literal>0</literal> meaning no process and <literal>-1</literal> meaning process #0.</para></listitem>
+<listitem><para>1-byte paused flag, if the d&#xe6;mon process is in the stopped state.</para></listitem>
+<listitem>
+	<para>1-byte pending command flag, which is an ASCII-encoded character:</para>
+	<variablelist spacing="compact">
+	<varlistentry><term><literal>d</literal></term><listitem><para>down</para></listitem></varlistentry>
+	<varlistentry><term><literal>u</literal></term><listitem><para>up</para></listitem></varlistentry>
+	<varlistentry><term><literal>o</literal></term><listitem><para>once</para></listitem></varlistentry>
+	<varlistentry><term><literal>O</literal></term><listitem><para>at most once</para></listitem></varlistentry>
+	</variablelist>
+</listitem>
+<listitem>
+	<para>1-byte daemontools-encore status (for details see later) which is a binary number:</para>
+	<variablelist spacing="compact">
+	<varlistentry><term><literal>0</literal></term><listitem><para>stopped</para></listitem></varlistentry>
+	<varlistentry><term><literal>1</literal></term><listitem><para>starting</para></listitem></varlistentry>
+	<varlistentry><term><literal>2</literal></term><listitem><para>started</para></listitem></varlistentry>
+	<varlistentry><term><literal>3</literal></term><listitem><para>running</para></listitem></varlistentry>
+	<varlistentry><term><literal>4</literal></term><listitem><para>stopping</para></listitem></varlistentry>
+	<varlistentry><term><literal>5</literal></term><listitem><para>failed</para></listitem></varlistentry>
+	</variablelist>
+</listitem>
+<listitem>
+<para>
+68 bytes comprising 4 groups of status information for the last <filename>start</filename>, <filename>run</filename>, <filename>restart</filename>, and <filename>stop</filename> programs to terminate:
+</para>
+<orderedlist>
+<listitem>
+	<para>1-byte code for termination status, which is a binary number:</para>
+	<variablelist>
+	<varlistentry>
+	<term><literal>0</literal></term>
+	<listitem><para>Not yet terminated, other fields should not be considered valid.</para></listitem>
+	</varlistentry>
+	<varlistentry>
+	<term><literal>1</literal></term>
+	<listitem><para>Terminated normally with an exit code.</para></listitem>
+	</varlistentry>
+	<varlistentry>
+	<term><literal>2</literal></term>
+	<listitem><para>Terminated by a signal.</para></listitem>
+	</varlistentry>
+	<varlistentry>
+	<term><literal>3</literal></term>
+	<listitem><para>Terminated by a signal, and core dumped.</para></listitem>
+	</varlistentry>
+	</variablelist>
+</listitem>
+<listitem><para>4-byte exit code or signal number, in host byte order.</para></listitem>
+<listitem><para>12-byte TAI64N timestamp.</para></listitem>
+</orderedlist>
+</listitem>
+</orderedlist>
+
+<para>
+Other tools may use further files in a supervise directory.
+Again, these files are ignored by <command>service-manager</command>.
+</para>
+
+</refsection><refsection><title>Directory locations</title>
+
+<para>
+The service manager neither knows nor cares where in the filesystem these directories are.
+That is the province of the utilities that feed control requests to it.
+It is not necessary for supervise directories to be subdirectories of service directories.
+</para>
+
+<para>
+It is not necessary for the relationship between service directories and supervise directories to be one-to-one.  
+One service directory can be shared amongst multiple services, as long as they each have an individual supervise directory.
+</para>
+
+<para>
+Moreover, it is not necessary for the relationship between services themselves to be exactly one "main" service feeding its output into one subordinate "log" service.
+The service manager permits arbitrary-length pipelines of services, as well as fan-in.  
+(However, fan-in should be used sparingly as it generally causes more administrative headaches than it solves.)
+</para>
+
+</refsection><refsection><title>Service states</title>
+
+<para>
+If a service is not known to the service manager, it is in an unloaded state, and none of the information in the <filename>status</filename> file is valid.
+Otherwise, service states in that file follow the daemontools-encore paradigm:
+</para>
+
+<variablelist>
+
+<varlistentry>
+<term>stopped</term>
+<listitem><para>
+No service process is executing.
+</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term>starting</term>
+<listitem><para>
+The service's <filename>start</filename> program is currently executing.
+</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term>started</term>
+<listitem><para>
+This state is not used.
+</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term>running</term>
+<listitem><para>
+The service's <filename>run</filename> program is currently executing, or no program is currently executing in a run-on-empty service that was running the <filename>run</filename> program immedately prior.
+</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term>failed</term>
+<listitem><para>
+The service's <filename>restart</filename> program is currently executing.
+</para></listitem>
+</varlistentry>
+
+<varlistentry>
+<term>stopping</term>
+<listitem><para>
+The service's <filename>stop</filename> program is currently executing.
+</para></listitem>
+</varlistentry>
+
+</variablelist>
+
+</refsection>
+
+</refsection>
+<refsection><title>Restart</title>
+
+<para>
+Automatic restart is tailorable to individual services.
+If the <filename>restart</filename> program does not exist, or does not exit with a success (i.e. zero) status when run, the service <filename>run</filename> program is not restarted.
+</para>
+
+<para>
+For the simplest cases <filename>restart</filename> can just be a (symbolic) link to <filename>/bin/true</filename> or <filename>/bin/false</filename>, to provide always-restart and never-restart services, respectively.
+(If using the nosh flavours of <citerefentry><refentrytitle>true</refentrytitle><manvolnum>1</manvolnum></citerefentry> and <citerefentry><refentrytitle>false</refentrytitle><manvolnum>1</manvolnum></citerefentry> do not use links to them.
+They will see themselves invoked under the unknown (to them) name <filename>restart</filename> and complain.
+Instead, write a short <citerefentry><refentrytitle>nosh</refentrytitle><manvolnum>1</manvolnum></citerefentry> script.)
+</para>
+
+<para>
+However, <filename>restart</filename> is invoked with two pieces of information, which together represent the most recent exit status of the <filename>run</filename> program, that allow finer control over the restart decision, if desired.
+The two pieces of information are its three command line arguments.
+</para>
+
+<para>
+The first is a code, one of <code>exit</code>, <code>term</code>, <code>kill</code>, <code>abort</code>, or <code>crash</code>.  
+This categorizes how <filename>run</filename> exited.  
+Everything apart from <code>exit</code> denotes being terminated by an uncaught signal. 
+<code>term</code> denotes the "good" termination signals <code>SIGTERM</code>, <code>SIGPIPE</code>, <code>SIGHUP</code>, and <code>SIGINT</code>.  
+<code>kill</code> denotes <code>SIGKILL</code>.  
+<code>abort</code> denotes <code>SIGABRT</code>, <code>SIGALRM</code>, or <code>SIGQUIT</code>.  
+And <code>crash</code> is everything else.
+</para>
+
+<para>
+The second is either (for <code>exit</code>) the decimal exit status of the process or (for everything else) a symbolic designation (falling back to a decimal code) of the specific signal, if the first argument is not specific enough to make a decision.
+</para>
+
+<para>
+For convenience, the third is (for other than <code>exit</code>) always the decimal code of the specific signal.
+</para>
+
+</refsection><refsection><title>Author</title>
+<para><author><personname><firstname>Jonathan</firstname> <surname>de Boyne Pollard</surname></personname></author></para>
+</refsection>
+
+</refentry>

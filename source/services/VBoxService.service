@@ -1,0 +1,18 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=VirtualBox guest additions daemon
+Conflicts=ntpd.service systemd-timesyncd.service openntpd.service chrony.service
+Before=time-sync.target
+Wants=time-sync.target
+# This daemon secretly uses Desktop Bus.
+After=dbus
+
+[Service]
+ExecStart=%p -f
+RestartSec=5
+
+[Install]
+WantedBy=virtualbox-guest.target

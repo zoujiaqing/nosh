@@ -1,0 +1,13 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=Scanner service
+
+[Service]
+User=saned
+ExecStart=%p
+
+[Install]
+WantedBy=server.target

@@ -1,0 +1,13 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=FTP service over IP4 using vsftp
+
+[Service]
+LimitData=300000
+ExecStart=%p
+
+[Install]
+WantedBy=server.target

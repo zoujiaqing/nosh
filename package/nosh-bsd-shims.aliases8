@@ -1,0 +1,4 @@
+reboot	fastboot
+halt	fasthalt
+powercycle	fastpowercycle
+poweroff	fastpoweroff

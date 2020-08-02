@@ -1,0 +1,14 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=Collection for all "late" "auto" swap services
+After=swapauto.target
+
+[Service]
+User=nobody
+
+[Install]
+StoppedBy=shutdown.target
+WantedBy=sysinit.target

@@ -1,0 +1,12 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=Tool to automatically collect and submit crash signatures
+
+[Service]
+ExecStart=%p --nodaemon
+
+[Install]
+WantedBy=workstation.target

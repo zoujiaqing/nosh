@@ -1,0 +1,12 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=IPv4 mroute daemon
+
+[Service]
+ExecStart=mrouted
+
+[Install]
+WantedBy=server.target

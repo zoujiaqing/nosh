@@ -1,0 +1,74 @@
+<title>Handling old log mechanisms</title>
+<link rel="Up" href="logging.html" title="Logging" />
+<link rel="Prev" href="log-service-security.html" title="Security of logging" />
+<h1>
+Handling old log mechanisms
+</h1>
+
+<p>
+The daemontools way of logging for many years has been to just write to standard error.
+After a decade and a half of pressure, quite a few services can be set up to work this way nowadays.
+Many services can thus have their logging handled independently of that of other services, by a dedicated "log" service running behind a security partition, removing the problems of centralized logging such as vulnerability to flooding attacks, a single I/O bottleneck, and mixture of trusted and untrusted content.
+But there remain some diehards that cannot be configured this way.  
+</p>
+
+<h2>
+Component commands
+</h2>
+
+<p>
+The <a href="commands/klog-read.xml"><code>klog-read</code></a> and <a href="commands/syslog-read.xml"><code>syslog-read</code></a> commands form the bases of services that can handle old log mechanisms.
+<code>klog-read</code> is a simple UCSPI program that expects its standard input to be stream-based.
+<code>syslog-read</code> is a simple UCSPI program that expects its standard input to be datagram-based.
+</p>
+
+<p>
+They are intended to be <a href="log-service-security.html#old-services">more secure than the old-style <code>rsyslog</code> or Wettstein <code>syslog</code> programs</a>.
+</p>
+
+<p>
+They are also simpler, by design.
+They leave off some of the bells and whistles of those programs, which are less necessary with this toolset or approached an entirely different way.
+Logs are <em>already</em> distributed into multiple sets, by the very nature of dedicated "log" services; logs are already autorotated; logs are already <em>strictly</em> size-capped.
+All of these are the domain of a "log" service that is security-partitioned from the services running <code>klog-read</code> or <code>syslog-read</code>.
+</p>
+
+<p>
+They also build upon service management mechanisms.
+Not providing (for example) UDP log service is a simple matter of stopping and disabling the <code>udp-syslog-read</code> service with service management tools, just like any other service.
+</p>
+
+<h2>
+Kernel logging
+</h2>
+
+<p>
+Plumbed together with <a href="commands/fifo-listen.xml"><code>fifo-listen</code></a>, <code>klog-read</code> forms the <code>klog</code> service.
+This service listens to the operating system kernel's log device (<code>/dev/kmsg</code> on Linux, <code>/dev/klog</code> on the BSDs) and writes out all that it receives.
+It feeds an ordinary log service, so kernel logs end up in a normal, automatically rotated, strictly size capped, set of log files like any other.
+</p>
+
+<h2>
+"syslog" logging
+</h2>
+
+<p>
+Plumbed together with <a href="commands/local-datagram-socket-listen.xml"><code>local-datagram-socket-listen</code></a>, <code>syslog-read</code> forms the <code>local-syslog-read</code> service.
+This service listens to the GNU C library's log socket (<code>/dev/log</code> on Linux, <code class='filename'>/run/log</code> on the BSDs) and writes out all that it receives.
+</p>
+
+<p>
+Plumbed together with <a href="commands/local-datagram-socket-listen.xml"><code>local-datagram-socket-listen</code></a>, <code>syslog-read</code> forms the <code>systemd-syslog-read</code> service.
+This service listens to the systemd-journal's log socket (<code>/run/systemd/journal/syslog</code>) and writes out all that it receives.
+</p>
+
+<p>
+Plumbed together with <a href="commands/udp-socket-listen.xml"><code>udp-socket-listen</code></a>, <code>syslog-read</code> forms the <code>udp-syslog-read</code> service.
+This service listens to the conventional "syslog" UDP port and writes out all that it receives.
+</p>
+
+<p>
+They all feed ordinary log services, so local and remote logs end up in a normal, automatically rotated, strictly size capped, set of log files like any other.
+The services are entirely independent, though.
+<a href="log-service-security.html#old-services">This has various security benefits.</a>
+</p>

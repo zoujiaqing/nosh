@@ -1,0 +1,26 @@
+#
+# Enable VirtualBox Guest Additions
+#
+# This is not a systemd preset.
+# It goes in a special nosh system-manager preset directory.
+# It is used by the nosh-run-virtualbox-guest package.
+#
+
+enable	virtualbox-guest.target
+
+enable	VBoxService.service
+enable	cyclog@VBoxService.service
+disable	VBoxBalloonCtrl.service
+disable	cyclog@VBoxBalloonCtrl.service
+enable	virtualbox-guest-utils.service
+enable	cyclog@virtualbox-guest-utils.service
+enable	kmod@vboxadd.service
+enable	kmod@vboxguest.service
+enable	kmod@vboxsf.service
+enable	kmod@vboxvideo.service
+enable	virtualbox-guest-x11.service
+enable	cyclog@kmod@vboxadd.service
+enable	cyclog@kmod@vboxguest.service
+enable	cyclog@kmod@vboxsf.service
+enable	cyclog@kmod@vboxvideo.service
+enable	cyclog@virtualbox-guest-x11.service

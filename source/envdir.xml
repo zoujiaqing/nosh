@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- **************************************************************************
+.... For copyright and licensing terms, see the file named COPYING.
+.... **************************************************************************
+.-->
+<?xml-stylesheet href="docbook-xml.css" type="text/css"?>
+
+<refentry id="envdir">
+
+<refmeta xmlns:xi="http://www.w3.org/2001/XInclude">
+<refentrytitle>envdir</refentrytitle>
+<manvolnum>1</manvolnum>
+<refmiscinfo class="manual">user commands</refmiscinfo>
+<refmiscinfo class="source">nosh</refmiscinfo>
+<xi:include href="version.xml" />
+</refmeta>
+
+<refnamediv><refname>envdir</refname><refpurpose>set environment variables then chain</refpurpose></refnamediv>
+
+<refsynopsisdiv>
+<cmdsynopsis>
+<command>envdir</command> 
+<arg choice='opt'>--ignore-nodir</arg> 
+<arg choice='opt'>--full</arg> 
+<arg choice='opt'>--chomp</arg> 
+<arg choice='req'><replaceable>dir</replaceable></arg> 
+<arg choice='req'><replaceable>next-prog</replaceable></arg>
+</cmdsynopsis>
+</refsynopsisdiv>
+
+<refsection><title>Description</title>
+
+<para>
+<command>envdir</command> is a chain-loading utility that sets and unsets environment variables according to the files in <replaceable>dir</replaceable> and then chain loads to <replaceable>next-prog</replaceable> with the <citerefentry><refentrytitle>execvp</refentrytitle><manvolnum>3</manvolnum></citerefentry> function.  
+</para>
+
+<para>
+<replaceable>next-prog</replaceable> may contain its own command line options, which <command>envdir</command> will ignore.
+</para>
+
+<para>
+Unless the <arg choice='opt'>--ignore-nodir</arg> command line option is used, the non-existence of <replaceable>dir</replaceable>, or it being something other than a directory, is a fatal error.
+</para>
+
+<para>
+For each file <filename>file</filename> in <replaceable>dir</replaceable>:
+</para>
+
+<itemizedlist>
+
+<listitem>
+<para>
+If the file is empty, <command>envdir</command> unsets the variable <filename>file</filename> if it is set.
+</para>
+</listitem>
+
+<listitem>
+<para>
+Otherwise <command>envdir</command> sets the variable <filename>file</filename>, overwriting its existing value if it has one, to the contents of <filename>file</filename>, after turning NUL characters into LF characters (and turning the final LF character into a string-terminating NUL).
+</para>
+<para>
+If the <arg choice='opt'>--full</arg> command line option is used, <command>envdir</command> uses the full contents of <filename>file</filename>; otherwise it uses just the first line of those contents.
+This is a bodge for malformed out-of-spec environment directories.
+Always create environment directories properly, according to the Bernstein specification, and you should never need this.
+Use <citerefentry><refentrytitle>tr</refentrytitle><manvolnum>1</manvolnum></citerefentry> in shell scripts to properly translate LFs to NULs for writing environment directories, for example.
+</para>
+<para>
+If the <arg choice='opt'>--chomp</arg> command line option is used, each line used has leading and trailing whitespace characters trimmed.
+</para>
+</listitem>
+
+</itemizedlist>
+
+<para>
+<command>envdir</command> skips directory entries that aren't regular files (or symbolic links to regular files), trying not to even attempt to open them if the operating system's directory scanning ability includes the reporting of entry types.
+It also skips entries whose names begin with a dot.
+</para>
+
+<para>
+<command>envdir</command> makes no attempt to sanitize the contents of <filename>file</filename> or the name <filename>file</filename>.
+If the name or the contents contain an <code>=</code> character, counter-intuitive things will happen to the environment.
+If the contents have whitespace at the end of the first line, that will be included in the variable's value in the environment.
+</para>
+
+</refsection><refsection><title>Bugs</title>
+
+<para>
+As of version 1.34 this program no longer employs the GNU C library nor the BSD C library for environment variable handling.
+The previously documented workaround for those libraries' having memory leaks in their <citerefentry><refentrytitle>setenv</refentrytitle><manvolnum>3</manvolnum></citerefentry> and <citerefentry><refentrytitle>clearenv</refentrytitle><manvolnum>3</manvolnum></citerefentry> functions, is therefore no longer necessary.
+</para>
+
+</refsection><refsection><title>See also</title>
+
+<itemizedlist>
+<listitem><para>
+<citerefentry><refentrytitle>appendpath</refentrytitle><manvolnum>1</manvolnum></citerefentry>
+</para></listitem>
+<listitem><para>
+<citerefentry><refentrytitle>prependpath</refentrytitle><manvolnum>1</manvolnum></citerefentry>
+</para></listitem>
+<listitem><para>
+<citerefentry><refentrytitle>setenv</refentrytitle><manvolnum>1</manvolnum></citerefentry>
+</para></listitem>
+<listitem><para>
+<citerefentry><refentrytitle>unsetenv</refentrytitle><manvolnum>1</manvolnum></citerefentry>
+</para></listitem>
+<listitem><para>
+<citerefentry><refentrytitle>read-conf</refentrytitle><manvolnum>1</manvolnum></citerefentry>
+</para></listitem>
+<listitem><para>
+<citerefentry><refentrytitle>printenv</refentrytitle><manvolnum>1</manvolnum></citerefentry>
+</para></listitem>
+<listitem><para>
+The <command>set-service-env</command> and <command>print-service-env</command> subcommands of <citerefentry><refentrytitle>system-control</refentrytitle><manvolnum>1</manvolnum></citerefentry>
+</para></listitem>
+</itemizedlist>
+
+</refsection><refsection><title>Author</title>
+<para><author><personname><firstname>Jonathan</firstname> <surname>de Boyne Pollard</surname></personname></author></para>
+</refsection>
+
+</refentry>

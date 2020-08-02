@@ -1,0 +1,14 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=%p service
+
+[Service]
+# The import procedure is expected to have populated this directory with flags.
+EnvironmentDirectory=env
+ExecStart=%p -d ${flags}
+
+[Install]
+WantedBy=server.target

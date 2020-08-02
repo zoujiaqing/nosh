@@ -1,0 +1,14 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=%p %i server
+
+[Service]
+ExecStartPre=/var/ossec/bin/%p-%i -t
+ExecStart=/var/ossec/bin/%p-%i -f
+Restart=no
+
+[Install]
+WantedBy=server.target

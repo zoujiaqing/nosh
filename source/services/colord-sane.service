@@ -1,0 +1,16 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=ColourManager daemon
+# colord-sane refuses to start if it cannot talk to avahi.
+After=local-syslog.target avahi-daemon.service
+
+[Service]
+Type=dbus
+User=colord
+ExecStart=/usr/lib/colord/%p
+
+[Install]
+WantedBy=workstation.target

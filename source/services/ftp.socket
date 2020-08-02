@@ -1,0 +1,18 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=Generic FTP socket capable of single-stack IPV6 and IPV6-mapped IPV4
+
+[Socket]
+Backlog=2
+MaxConnections=30
+NoDelay=false
+ListenStream=ftp
+UCSPIRules=true
+Accept=true
+BindIPv6Only=both
+
+[Install]
+WantedBy=server.target

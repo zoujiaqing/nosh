@@ -1,0 +1,16 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+# As of version 3.1, by default Celery does not "backgroundize" and logs to standard error, and one stops it with SIGKILL.
+# See also https://github.com/celery/celery/issues/3459 .
+
+[Unit]
+Description=Celery distributed task queue for node %I
+
+[Service]
+User=celery
+ExecStart=celery worker ${app:+-A "${app}"} -n %I ${concurrency:+-c "${concurrency}"} ${options}
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- **************************************************************************
+.... For copyright and licensing terms, see the file named COPYING.
+.... **************************************************************************
+.-->
+<?xml-stylesheet href="docbook-xml.css" type="text/css"?>
+
+<refentry id="service-show">
+
+<refmeta xmlns:xi="http://www.w3.org/2001/XInclude">
+<refentrytitle>service-show</refentrytitle>
+<manvolnum>1</manvolnum>
+<refmiscinfo class="manual">user commands</refmiscinfo>
+<refmiscinfo class="source">nosh</refmiscinfo>
+<xi:include href="version.xml" />
+</refmeta>
+
+<refnamediv>
+<refname>service-show</refname>
+<refname>svshow</refname>
+<refpurpose>machine-parseable service status display</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv>
+<cmdsynopsis>
+<command>service-show</command> 
+<arg choice='opt'>--json</arg>
+<arg choice='req' rep='repeat'><replaceable>directory</replaceable></arg>
+</cmdsynopsis>
+<cmdsynopsis>
+<command>svshow</command> 
+<arg choice='opt'>--json</arg>
+<arg choice='req' rep='repeat'><replaceable>directory</replaceable></arg>
+</cmdsynopsis>
+</refsynopsisdiv>
+
+<refsection><title>Description</title>
+
+<para>
+<command>service-show</command> displays machine-parseable (but not necessarily human-readable) information about a service that may be currently managed by <citerefentry><refentrytitle>service-manager</refentrytitle><manvolnum>1</manvolnum></citerefentry> (or by runit's <citerefentry><refentrytitle>runsv</refentrytitle><manvolnum>1</manvolnum></citerefentry>, by s6's <citerefentry><refentrytitle>s6-supervise</refentrytitle><manvolnum>1</manvolnum></citerefentry>, by daemontools' <citerefentry><refentrytitle>supervise</refentrytitle><manvolnum>1</manvolnum></citerefentry>, or by daemontools-encore's <citerefentry><refentrytitle>supervise</refentrytitle><manvolnum>1</manvolnum></citerefentry>).
+Each <replaceable>directory</replaceable> is either a supervise directory or a directory with a supervise directory named <filename>supervise</filename> within it.
+The latter covers both daemontools-style service directories and nosh-style service bundles.
+</para>
+
+<para>
+If the <arg choice='opt'>--json</arg> command line option is used, the machine parseable format is JSON, with each <replaceable>directory</replaceable> being an entry in a top-level array of objects.
+Otherwise, the machine parseable format is that of a .INI file.; with each <replaceable>directory</replaceable> being a section within the file.
+</para>
+
+<para>
+For more on service and supervise directories, see <citerefentry><refentrytitle>service-manager</refentrytitle><manvolnum>1</manvolnum></citerefentry>.
+For more on service bundles, see <citerefentry><refentrytitle>system-control</refentrytitle><manvolnum>1</manvolnum></citerefentry>.
+</para>
+
+</refsection>
+
+<refsection><title>History</title>
+	
+<para>
+Jos Backus asked for the <arg choice='plain'>--json</arg> option in 2013.
+</para>
+
+</refsection>
+
+<refsection><title>Author</title>
+<para><author><personname><firstname>Jonathan</firstname> <surname>de Boyne Pollard</surname></personname></author></para>
+</refsection>
+
+</refentry>

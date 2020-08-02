@@ -1,0 +1,13 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=AppleTalk time server daemon
+After=atalkd.service
+
+[Service]
+ExecStart=%p -d
+
+[Install]
+WantedBy=server.target

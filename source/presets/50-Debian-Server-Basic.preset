@@ -1,0 +1,25 @@
+#
+# Enable basic services for the out-of-the-box Debian
+#
+# This is not a systemd preset.
+# It goes in a special nosh system-manager preset directory.
+# It is used by the nosh-run-debian-server-basic and nosh-run-debian-desktop-basic packages in order to enable the services themselves.
+#
+
+#
+# These services are common to both Debian Server and Debian Desktop.
+#
+
+# etc services
+
+# Normal services
+enable	cyclog@cleanX.service
+enable	cleanX.service
+enable	cyclog@cleantmp.service
+enable	cleantmp.service
+enable	cyclog@ntpd.service
+enable	ntpd.service
+disable	cyclog@openntpd.service
+disable	openntpd.service
+
+# Targets

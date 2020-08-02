@@ -1,0 +1,14 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=DBmail IMAP daemon
+After=mysql.service postgresql.service
+
+[Service]
+EnvironmentDirectory=env
+ExecStart=%p -n
+
+[Install]
+WantedBy=server.target

@@ -1,0 +1,13 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=System 5 init compatibility socket
+
+[Socket]
+ListenFIFO=%t/initctl
+SocketMode=0600
+
+[Install]
+WantedBy=workstation.target

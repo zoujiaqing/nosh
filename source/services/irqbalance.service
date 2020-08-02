@@ -1,0 +1,12 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=Linux IRQ balancing daemon
+
+[Service]
+ExecStart=%p --foreground
+
+[Install]
+WantedBy=workstation.target

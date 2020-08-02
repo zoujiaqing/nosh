@@ -1,0 +1,13 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=RARP service
+
+[Service]
+EnvironmentDirectory=env
+ExecStart=%p -d -f -a
+
+[Install]
+WantedBy=server.target

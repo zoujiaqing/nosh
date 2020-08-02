@@ -1,0 +1,14 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=rsyslog
+
+[Service]
+# Don't use %p; this unit is accessed via a symbolic link.
+ExecStart=rsyslogd -n
+StandardInput=socket
+
+[Install]
+# This is enabled via the setting in the associated socket unit.

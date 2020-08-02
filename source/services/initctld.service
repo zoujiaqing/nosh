@@ -1,0 +1,12 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=System 5 init compatibility daemon
+
+[Service]
+ExecStart=initctl-read
+# initctl-read understands the LISTEN protocol, so does not need StandardInput=socket.
+
+[Install]

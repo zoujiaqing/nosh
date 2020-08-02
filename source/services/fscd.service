@@ -1,0 +1,14 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+## It's a bit mad to have this when you have a full service manager.  But ...
+
+[Unit]
+Description=FreeBSD service control daemon
+
+[Service]
+ExecStart=%p -v
+
+[Install]
+WantedBy=workstation.target

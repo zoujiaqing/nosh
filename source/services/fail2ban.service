@@ -1,0 +1,15 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=Fail2ban Service
+
+[Service]
+Type=forking
+RuntimeDirectory=%p
+ExecStart=fail2ban-client -f -v start
+ExecStopPost=fail2ban-client -x stop
+
+[Install]
+WantedBy=server.target

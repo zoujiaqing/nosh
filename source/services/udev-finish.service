@@ -1,0 +1,24 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=Copy udev rules generated and dumped into /run whilst /etc was mounted read-only
+Description=Debian did away with this in September 2015.
+DefaultDependencies=false
+WantsMountsFor=/etc
+AfterMountsFor=/etc
+After=udev
+Before=shutdown.target
+
+[Service]
+# Marking this as a oneshot means that it doesn't become ready until the %p command has exited.
+Type=oneshot
+ExecStart=/lib/udev/%p
+# This is a one-shot service that can be re-triggered by starting it again.
+#RemainAfterExit=1
+Restart=no
+
+[Install]
+WantedBy=sysinit.target
+StoppedBy=shutdown.target

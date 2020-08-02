@@ -1,0 +1,6 @@
+exec	chroot
+exec	false
+exec	true
+exec	ulimit
+exec	umask
+exec	printenv

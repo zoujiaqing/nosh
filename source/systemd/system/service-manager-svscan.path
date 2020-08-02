@@ -1,0 +1,12 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=Daemontools compatible /service/ directory
+
+[Path]
+DirectoryNotEmpty=/service/
+
+[Install]
+WantedBy=multi-user.target

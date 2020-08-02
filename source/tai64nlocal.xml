@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- **************************************************************************
+.... For copyright and licensing terms, see the file named COPYING.
+.... **************************************************************************
+.-->
+<?xml-stylesheet href="docbook-xml.css" type="text/css"?>
+
+<refentry id="tai64nlocal">
+
+<refmeta xmlns:xi="http://www.w3.org/2001/XInclude">
+<refentrytitle>tai4nlocal</refentrytitle>
+<manvolnum>1</manvolnum>
+<refmiscinfo class="manual">user commands</refmiscinfo>
+<refmiscinfo class="source">nosh</refmiscinfo>
+<xi:include href="version.xml" />
+</refmeta>
+
+<refnamediv><refname>tai64nlocal</refname><refpurpose>filter to translate external TAI64N timestamps</refpurpose></refnamediv>
+
+<refsynopsisdiv>
+<cmdsynopsis>
+<command>tai64nlocal</command>
+<arg choice='opt' rep='repeat'><replaceable>files</replaceable></arg>
+</cmdsynopsis>
+</refsynopsisdiv>
+
+<refsection><title>Description</title>
+
+<para>
+<command>tai64nlocal</command> reads a series of lines.  
+For each line that begins with an <code>@</code> character and a TAI64N timestamp in external form (16 hexadecimal digits of seconds and 8 hexadecimal digits of nanoseconds) it replaces the timestamp with a broken down calendar date and time in human-readable form.
+</para>
+
+<para>
+If no <replaceable>files</replaceable> are supplied, <command>tai64nlocal</command> reads from its standard input until EOF.
+Otherwise it processes each named file in turn.
+In both cases it writes to its standard output.
+</para>
+
+<para>
+A trailing newline is silently added to any file (or to standard input) that ends with a partial line.
+</para>
+
+<para>
+<command>tai64nlocal</command> treats TAI64N timestamps correctly.
+On a Linux system where it detects an Olson "right" timezone currently in use, it knows that the system clock is TAI seconds since the Epoch and performs a simple conversion to determine system clock time.
+On other Linux systems, and on BSDs, it assumes that the system clock is UTC seconds since the Epoch and attempts to correct for (known) UTC leap seconds in order to determine UTC system clock time.
+</para>
+
+<para>
+<command>tai64nlocal</command> uses the C/C++ runtime library for output, and therefore has the normal C/C++ stream buffering semantics.
+It uses the <citerefentry><refentrytitle>read</refentrytitle><manvolnum>2</manvolnum></citerefentry> library function for input, however.
+To duplicate the GNU and BSD C/C++ runtime libraries' behaviours, it explicitly flushes the output's buffer whenever it is about to read more input and that input is the beginning of a new line.
+</para>
+
+</refsection><refsection><title>Compatibility</title>
+
+<para>
+The daemontools and daemontools-encore <citerefentry><refentrytitle>tai64nlocal</refentrytitle><manvolnum>1</manvolnum></citerefentry> both have a bug that causes them to crash if the input contains a line beginning with an <code>@</code> character but not having a properly encoded TAI64N timestamp, or having a TAI64N timestamp outwith the range acceptable to the <citerefentry><refentrytitle>localtime</refentrytitle><manvolnum>1</manvolnum></citerefentry> library function.
+<command>tai64nlocal</command> does not replicate this bug.
+</para>
+
+<para>
+See <ulink url="timestamps.html">the timestamps section of the <citetitle>nosh Guide</citetitle></ulink> for detailed information on the differences from daemontools, daemontools-encore, and other toolsets in how <command>tai64nlocal</command> handles TAI.
+</para>
+
+</refsection><refsection><title>Author</title>
+<para><author><personname><firstname>Jonathan</firstname> <surname>de Boyne Pollard</surname></personname></author></para>
+</refsection>
+
+</refentry>

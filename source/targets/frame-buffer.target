@@ -1,0 +1,15 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=Target that encompasses whatever is necessary for using the FrameBuffer device
+EarlySupervise=true
+Before=shutdown.target
+
+[Service]
+User=nobody
+
+[Install]
+StoppedBy=shutdown.target
+WantedBy=workstation.target

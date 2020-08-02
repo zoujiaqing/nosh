@@ -1,0 +1,17 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=kmod loader for ipv6
+
+[Service]
+Type=oneshot
+ExecStart=sh -c 'test -d /sys/module/ipv6/ || system-control load-kernel-module ipv6'
+ExecStopPost=system-control unload-kernel-module ipv6
+# This is a pseudo-daemon that does not have a running process.
+RemainAfterExit=yes
+Restart=no
+
+[Install]
+WantedBy=workstation.target

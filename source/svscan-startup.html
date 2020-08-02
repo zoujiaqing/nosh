@@ -1,0 +1,141 @@
+<title>Compatible old-style startup</title>
+<link rel="Up" href="index.html" title="nosh Guide" />
+<link rel="Prev" href="startup-and-shutdown.html" title="Startup and shutdown" />
+<link rel="Next" href="mounting.html" title="Mounting filesystems" />
+<h1>
+Compatible old-style startup
+</h1>
+
+<p>
+As an alternative to the full startup and shutdown mechanisms that involve running the system manager, one can use a mechanism that operates more like traditional daemontools.
+The service manager still runs, but instead of being sent control messages by <a href="commands/system-control.xml"><code>system-control</code></a> it is sent control messages by <a href="commands/service-dt-scanner.xml"><code>service-dt-scanner</code></a>, which implements old-style daemontools service activation involving a <code>/service/</code> directory.
+</p>
+
+<p>
+Of course, one has to do one's own system management, with some program running as process #1 that invokes <a href="commands/service-manager.xml"><code>service-manager</code></a> and <code>service-dt-scanner</code>.
+Exactly what one uses is beyond the scope of this guide, obviously.
+</p>
+
+<h2 id="RC">
+Old-style startup under Mewburn <code>rc</code>, OpenRC, and OpenBSD <code>rc</code>
+</h2>
+
+<p>
+The package comes supplied with some <code>rc.d</code> scripts that enable one to run the service manager and old-style scanner under Mewburn <code>rc</code> (on FreeBSD, NetBSD, TrueOS, and others), under OpenRC, or under OpenBSD <code>rc</code>.
+</p>
+
+<ul>
+<li><p>
+<code>service-manager</code> is a script that runs runs <code>service-manager</code> via <code>local-datagram-socket-listen</code>.
+</p></li>
+<li><p>
+<code>service-manager-svscan</code> is a script that runs <code>service-dt-scanner</code> against the <code>/service/</code> directory.
+</p></li>
+<li><p>
+<code>service-control-normal</code> is a script that runs <code>system-control</code> with the <code>start normal</code> subcommand.
+</p></li>
+</ul>
+
+<p>
+Under the Mewburn system, all are enabled with the usual <code>_enable</code> variables in <code>/etc/rc.conf</code>.
+What happens at system bootstrap, with these enabled, is:
+</p>
+
+<ol>
+<li><p>
+Mewburn/OpenRC/OpenBSD <code>rc</code> activates the <code>service-manager</code> script, spawning <code>service-manager</code> with an open file descriptor (set up by <code>local-datagram-socket-listen</code>) listening on <code>/run/service-manager/control</code>.
+</p></li>
+<li><p>
+Mewburn/OpenRC/OpenBSD <code>rc</code> activates the <code>service-manager-svscan</code> script, spawning <code>service-dt-scanner /service/</code>.
+</p>
+<ol>
+<li><p>
+<code>service-dt-scanner</code> scans <code>/service/</code> and for every service found it sends a LOAD command to the <code>/run/service-manager/control</code> socket.
+</p></li>
+<li><p>
+<code>service-manager</code> loads and manages the services that <code>service-dt-scanner</code> tells it to.
+</p></li>
+</ol>
+</li>
+<li><p>
+Mewburn/OpenRC/OpenBSD <code>rc</code> activates the <code>system-control-normal</code> script, spawning <code>system-control start normal</code>.
+</p>
+<ol>
+<li><p>
+<code>system-control start</code> finds all of the services wanted-by the <code>normal</code> target, sends a LOAD command for every such service to the <code>/run/service-manager/control</code> socket, and sends a START command.
+(A special cut-out, only in place when the system is configured to run under Mewburn/OpenRC/OpenBSD <code>rc</code>, prevents the <code>sysinit</code> target and its dependencies from being started, on the grounds that the Mewburn/OpenBSD <code>rc</code> takes care of its equivalent.)
+</p></li>
+<li><p>
+<code>service-manager</code> loads and manages the services that <code>system-control start</code> tells it to.
+</p></li>
+</ol>
+</li>
+</ol>
+
+<h2 id="systemd">
+Old-style startup under systemd
+</h2>
+
+<p>
+The package comes supplied with some unit files that enable one to run the service manager and old-style scanner under systemd.
+</p>
+
+<ul>
+<li><p>
+<code>service-manager.socket</code> is a systemd <em>socket unit</em> that defines a local-domain datagram socket named <code>/run/service-manager/control</code>.
+<code>service-manager.service</code> is a systemd <em>service unit</em> that defines the <em>socket-activated</em> service associated with that socket.
+The service runs <code>service-manager</code>, which understands the
+<a href="http://freedesktop.org/software/systemd/man/sd_listen_fds.html">systemd LISTEN_FDS convention</a> 
+and so can be run as a systemd socket-activated service in this manner.
+</p></li>
+<li><p>
+<code>service-manager-svscan.path</code> is a systemd <em>path unit</em> that tells systemd to watch the <code>/service/</code> directory.
+<code>service-manager-svscan.service</code> is a systemd <em>service unit</em> that defines the <em>path-activated</em> service that is associated with that path.
+The service runs <code>service-dt-scanner</code>.
+</p></li>
+</ul>
+
+<p>
+You must enable the path and the socket units if you wish to run the service manager under systemd.
+What happens at system bootstrap, with these enabled, is:
+</p>
+
+<ol>
+<li><p>
+systemd, monitoring the <code>/service/</code> directory as a result of activating the path unit, sees that the directory is non-empty.
+</p></li>
+<li><p>
+systemd activates the <code>service-manager-svscan.service</code> service, running <code>service-dt-scanner /service/</code>.
+</p></li>
+<li><p>
+<code>service-dt-scanner</code> scans <code>/service/</code> and for every service found it sends a LOAD command to the <code>/run/service-manager/control</code> socket.
+</p></li>
+<li><p>
+systemd, monitoring the <code>/run/service-manager/control</code> socket as a result of activating the socket unit, sees that requests have arrived on the socket.
+</p></li>
+<li><p>
+systemd activates the <code>service-manager.service</code> service, running <code>service-manager</code> with an open file descriptor for the control socket.
+</p></li>
+<li><p>
+<code>service-manager</code> loads and manages the services that <code>service-dt-scanner</code> tells it to.
+</p></li>
+<li><p>
+systemd activates the <code>system-control-normal.service</code> service, spawning <code>system-control start normal</code>.
+</p>
+<ol>
+<li><p>
+<code>system-control start</code> finds all of the services wanted-by the <code>normal</code> target, sends a LOAD command for every such service to the <code>/run/service-manager/control</code> socket, and sends a START command.
+(A special cut-out, only in place when the system is configured to run under systemd, prevents the <code>sysinit</code> target and its dependencies from being started, on the grounds that systemd services and targets take care of its equivalent.)
+</p></li>
+<li><p>
+<code>service-manager</code> loads and manages the services that <code>system-control start</code> tells it to.
+</p></li>
+</ol>
+</li>
+</ol>
+
+<p>
+At shutdown, systemd first deactivates the <code>system-control-normal.service</code> service, spawning <code>system-control start shutdown</code> to perform a normal orderly shutdown.
+This sends various commands to the service manager to attempt, with various signals, to stop all services that the <code>shutdown</code> service has a <code>conflicts/</code> relationship with.
+It happens before systemd attempts to shut down the actual <code>service-manager.service</code> itself.
+</p>

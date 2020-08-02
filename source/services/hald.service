@@ -1,0 +1,17 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description="HAL" daemon
+After=local-syslog.target extra-shared-libraries.target usbd devd moused webcamd
+
+[Service]
+Type=dbus
+RuntimeDirectory=%p
+RuntimeDirectoryMode=0770
+RuntimeDirectoryOwner=haldaemon
+ExecStart=%p --daemon=no ${verbose:+--verbose="${verbose}"} ${flags}
+
+[Install]
+WantedBy=workstation.target

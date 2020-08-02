@@ -1,0 +1,20 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=GitLab Unicorn Server
+Requires=redis.service
+Wants=mysqld.service postgresql.service
+After=redis.service mysqld.service postgresql.service
+
+[Service]
+# FIXME: Is this really needed?
+systemdUserEnvironment=true
+User=git
+WorkingDirectory=/home/git/gitlab
+Environment=RAILS_ENV=production
+ExecStart=bundle exec "unicorn_rails -c /home/git/gitlab/config/unicorn.rb -E production"
+
+[Install]
+WantedBy=server.target

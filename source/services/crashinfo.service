@@ -1,0 +1,17 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=Analyze the last saved core dump
+
+[Service]
+Type=oneshot
+EnvironmentDirectory=env
+ExecStart=%p ${flags} -d ${dumpdir:-/var/crash}
+# This is a one-shot service that can be re-triggered by starting it again.
+#RemainAfterExit=1
+Restart=no
+
+[Install]
+WantedBy=workstation.target

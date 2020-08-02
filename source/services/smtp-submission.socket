@@ -1,0 +1,19 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=Generic SMTP Submission socket
+
+[Socket]
+Backlog=2
+BindIPv6Only=both
+ListenStream=submission
+Accept=true
+MaxConnections=16
+UCSPIRules=true
+LogUCSPIRules=yes
+NoDelay=false
+
+[Install]
+WantedBy=server.target

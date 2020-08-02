@@ -1,0 +1,20 @@
+#
+# Enable NetworkManager services
+#
+# This is not a systemd preset.
+# It goes in a special nosh system-manager preset directory.
+# It is used by the nosh-run-freedesktop-kits package in order to enable the services themselves.
+#
+
+enable	cyclog@NetworkManager.service
+enable	NetworkManager.service
+enable	cyclog@network-manager.service
+enable	network-manager.service
+enable	cyclog@org.freedesktop.NetworkManager1.service
+enable	org.freedesktop.NetworkManager1.service
+enable	cyclog@org.freedesktop.NetworkManager.service
+enable	org.freedesktop.NetworkManager.service
+enable	cyclog@NetworkManager-dispatcher.service
+enable	NetworkManager-dispatcher.service
+enable	cyclog@org.freedesktop.nm_dispatcher.service
+enable	org.freedesktop.nm_dispatcher.service

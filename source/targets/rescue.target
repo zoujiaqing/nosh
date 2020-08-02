@@ -1,0 +1,24 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=Rescue log-in target
+EarlySupervise=true
+Wants=sysinit.target
+Before=shutdown.target
+
+[Service]
+SessionLeader=true
+TTYReset=true
+TTYPath=console
+BannerLine=Rescue mode log-in.
+StandardInput=tty
+ExecStart=login
+# This otherwise defaults to true for targets.
+RemainAfterExit=no
+# Some job control shells ignore SIGTERM and need an explicit SIGHUP.
+SendSIGHUP=on
+
+[Install]
+StoppedBy=shutdown.target

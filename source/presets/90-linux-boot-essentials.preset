@@ -1,0 +1,29 @@
+#
+# Explicitly enable basic services and targets.
+#
+# This is not a systemd preset.  
+# It goes in a special nosh system-manager preset directory.
+# It is used by the nosh-bundles package in order to enable certain mandatory basics without which a system simply won't work.
+#
+
+# Ordinary services
+enable	update-binfmts.service
+enable	cyclog@update-binfmts.service
+enable	utx.service
+enable	cyclog@utx.service
+
+# kernel module services
+enable	kmod@autofs.service
+enable	kmod@fuse.service
+enable	cyclog@kmod@ipv6.service
+enable	kmod@ipv6.service
+enable	cyclog@kmod@unix.service
+enable	kmod@unix.service
+enable	cyclog@kmod@loop.service
+enable	kmod@loop.service
+
+# sysinit services
+enable	linux-lockfiles.service
+
+# Targets
+enable	frame-buffer.target

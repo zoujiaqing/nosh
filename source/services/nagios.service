@@ -1,0 +1,14 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=Nagios Core server
+
+[Service]
+ExecStart=%p
+User=nagios
+Restart=no
+
+[Install]
+WantedBy=server.target

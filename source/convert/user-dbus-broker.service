@@ -1,0 +1,19 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=Per-user "Desktop" bus service
+Description=Avoid using this; and use a user-level service instead.
+After=user-runtime@%I
+Wants=user-runtime@%I
+Conflicts=user-dbus-daemon@%I
+
+[Service]
+systemdUserEnvironment=true
+User=%I
+ExecStart=dbus-broker-launch -v --scope user --listen inherit
+Restart=always
+
+[Install]
+WantedBy=user@%I.target

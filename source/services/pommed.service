@@ -1,0 +1,13 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=Apple laptop hot-key daemon
+
+[Service]
+Type=dbus
+ExecStart=%p -d
+
+[Install]
+WantedBy=workstation.target

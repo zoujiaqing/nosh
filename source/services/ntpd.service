@@ -1,0 +1,16 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=NTP daemon
+Conflicts=systemd-timesyncd.service openntpd.service chrony.service VBoxService.service
+Before=time-sync.target
+Wants=time-sync.target
+
+[Service]
+EnvironmentDirectory=env
+ExecStart=%p --nofork ${panicgate} ${user:+-u "${user}${group:+:${group}}"} ${logfile:+--logfile "${logfile}"} ${flags}
+
+[Install]
+WantedBy=workstation.target

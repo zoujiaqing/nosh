@@ -1,0 +1,13 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=SSL Tunnel TCP multi-server
+
+[Service]
+EnvironmentDirectory=env
+ExecStart=%p "${config:-/usr/local/etc/%p/%p.conf}"
+
+[Install]
+WantedBy=workstation.target

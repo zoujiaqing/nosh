@@ -1,0 +1,17 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=Bonjour service
+After=polkitd.service
+
+[Service]
+Type=dbus
+RuntimeDirectory=%p
+RuntimeDirectoryMode=02755
+RuntimeDirectoryOwner=avahi
+ExecStart=%p
+StandardInput=socket
+
+[Install]

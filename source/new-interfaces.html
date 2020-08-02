@@ -1,0 +1,128 @@
+<title>Interfaces that are new</title>
+<link rel="Up" href="index.html" title="nosh Guide" />
+<link rel="Prev" href="familiar-interfaces.html" title="Interfaces that you are used to" />
+<link rel="Next" href="anatomy-of-regular-service.html" title="Anatomy of a typical service" />
+<h1>
+Interfaces that are new
+</h1>
+
+<p>
+nosh incorporates several interfaces and mechanisms that might be new to you:
+</p>
+
+<h2>
+Bundle directories
+</h2>
+
+<p>
+Service and supervise directories are stored as two (of several) subdirectories of an over all service <em>bundle directory</em>.
+Other subdirectories contain symbolic links that define service interrelationships and orderings.
+</p>
+
+<p>
+Bundle directories can live anywhere that one likes in the filesystem.
+The <a href="commands/system-control.xml"><code>system-control</code></a> program locates various standard targets in the <code>/etc/service-bundles/targets</code> directory.
+But those targets refer to other services (and targets) via symbolic links, which can point anywhere in the filesystem.
+</p>
+
+<p>
+(A slight restriction on this is also the fairly obvious one: 
+Bundles for services and targets that are started in parallel with, or before, mounting the non-root filesystems must live on the root filesystem.
+By convention, these "sysinit" bundles live in <code>/etc/service-bundles/services</code>.
+Since their supervise directories must be writable at run-time, they are symbolic links to directories that live under <code>/run/service-bundles/early-supervise</code>.)
+</p>
+
+<h2>
+Distinct managers
+</h2>
+
+<p>
+The <em>service</em> manager is not the <em>system</em> manager.
+The service manager (<a href="commands/service-manager.xml"><code>service-manager</code></a>) manages d&#xe6;mons, and their state transitions through the "stopped", "starting", "running", "failed", and "stopping" states.
+The system manager (<a href="commands/system-manager.xml"><code>system-manager</code></a>) manages the state machine for the system as a whole, with the "normal", "rescue", and "emergency" bootstrap modes, the "halt", "reboot", and "poweroff" targets, and system-level control mechanisms such as hotkeys (Control+Alt+Delete and on Linux Alt-UpArrow) on the system console.
+</p>
+
+<p>
+(Those familiar with Windows NT and ReactOS can see the system manager as akin to SMSS (the Session Manager Subsystem) which runs as process #1 and manages startup and shutdown, and the service manager as akin to SERVICES (the Service Controller) which manages service processes and provides an RPC API.
+They are quite different when compared in detail, though.
+Those familiar with IBM AIX can see the system manager as akin to <code>init</code> and the service manager as akin to <code>srcmstr</code>.
+Similarly, those familiar with Solaris can see the system manager as akin to <code>init</code> and the service manager as akin to <code>svc.startd</code>.
+Again, there are differences in the details.)
+</p>
+
+<h2>
+Distinct scanners
+</h2>
+
+<p>
+The service <em>manager</em> is not the service <em>scanner</em>.
+In daemontools (and in 
+<a href="http://skarnet.org/software/s6/">s6</a> and 
+<a href="http://untroubled.org/daemontools-encore/">daemontools-encore</a>) the service scanner forks supervisory processes for services, directly.
+In this system the daemontools-compatibility service scanner, <a href="commands/service-dt-scanner.xml"><code>service-dt-scanner</code></a>, talks through the RPC API to the service manager, which forks the service processes.
+The service scanner is not the parent of service processes.
+Indeed, it can be treated as a service <em>itself</em> (running under the service manager), and can be brought up and down.
+Traditional daemontools service scanners are not expected to be terminated, in contrast.
+</p>
+
+<p>
+One can do away with <code>service-dt-scanner</code> and any <code>/service/</code> directory entirely, moreover.
+The service manager API provides mechanism; whereas tools like <code>service-dt-scanner</code> determine in what particular way that mechanism is used, and are replaceable.
+Running <a href="commands/system-manager.xml"><code>system-manager</code></a> as process #1, there's no daemontools-compatible scanner involved in normal operation.
+Instead, <a href="commands/system-control.xml"><code>system-control</code></a> institutes the full service/target bundle interdependency framework.
+</p>
+
+<h2>
+<code>restart</code> scripts
+</h2>
+
+<p>
+Whenever the last service process for a service that is in the "running" state finishes, the service manager runs the service's <code>restart</code> program.
+(Some services, particularly targets, can be specially marked as "run on empty", which alters this behaviour.)
+This program is given arguments that tell it the status of the last service process: whether it exited, crashed, aborted, was terminated, or was killed; and what the signal or exit code was.
+</p>
+
+<p>
+A very simple <code>restart</code> script executes the <a href="commands/true.xml"><code>true</code> command</a>, which causes the service to be unconditionally restarted by the service manager.
+However, one can do a lot more than that.
+More complex <code>restart</code> scripts can &hellip;
+</p>
+
+<ul>
+<li><p>&hellip; decide whether to restart or to stop dependent from how the process terminated;</p></li>
+<li><p>&hellip; generate alert messages to monitoring systems;</p></li>
+<li><p>&hellip; delay restarting services by pausing for some timeout interval;</p></li>
+<li><p>&hellip; perform service-specific cleanup/reset actions.</p></li>
+</ul>
+
+<h2>
+Standard targets
+</h2>
+
+<p>
+This package has more standard targets than systemd, taking notions of distinct "multi-user" and "server" from the Solaris SMF milestones system:
+</p>
+<ul>
+<li><p>Services that are part of running a workstation, as opposed to a server, machine are enabled by being added to the "wants" list of the standard "workstation" target.</p></li>
+<li><p>Services that are part of running a server, as opposed to a workstation, machine are enabled by being added to the "wants" list of the standard "server" target.</p></li>
+<li><p>Services that are part of providing multi-user login are enabled by being added to the "wants" list of the standard "multi-user" target.</p></li>
+</ul>
+
+<p>
+It has different standard targets to systemd:
+</p>
+<ul>
+<li><p>The default target is named "normal", not "default".
+"normal" encompasses "server", "workstation", "multi-user", "static-networking", and "users".
+</p></li>
+</ul>
+
+<p>
+It also has fewer standard targets than systemd:
+</p>
+<ul>
+<li><p>
+There are no "runlevel" targets.  
+There is no concept of run-levels, full stop.  
+</p></li>
+</ul>

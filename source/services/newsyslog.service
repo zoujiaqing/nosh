@@ -1,0 +1,18 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=newsyslog sysinit service
+Before=local-priv-rsyslogd.service local-priv-syslogd.service local-rsyslogd.service local-syslogd.service udp-rsyslogd.service udp-syslogd.service syslogd.service local-syslog.target
+
+[Service]
+Type=oneshot
+EnvironmentDirectory=env
+ExecStart=%p -v
+# This is a one-shot service that can be re-triggered by starting it again.
+#RemainAfterExit=1
+Restart=no
+
+[Install]
+WantedBy=workstation.target

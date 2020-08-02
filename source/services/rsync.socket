@@ -1,0 +1,14 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=rsync server socket
+
+[Socket]
+ListenStream=873
+BindIPv6Only=both
+Accept=true
+
+[Install]
+WantedBy=server.target

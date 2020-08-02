@@ -1,0 +1,17 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=Run command within PC-BSD/TrueOS Warden jail %I
+Wants=warden-jail@%i
+After=warden-jail@%i
+
+[Service]
+JailID=%I
+EnvironmentDirectory=env/
+ExecStart=${start}
+ExecStopPost=${stop:-true}
+
+[Install]
+WantedBy=warden.target

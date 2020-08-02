@@ -1,0 +1,15 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=SunRPC keyserv daemon
+Wants=rpcbind.service
+After=rpcbind.service ypset.service
+
+[Service]
+EnvironmentDirectory=env
+ExecStart=%p
+
+[Install]
+WantedBy=server.target

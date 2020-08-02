@@ -1,0 +1,18 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=BSD static IP6 binding for %i
+After=network-runtime.service
+Wants=network-runtime.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+EnvironmentDirectory=env
+ExecStart=route -6 add ${route} ${fib:+-fib "${fib}"}
+ExecStopPost=route -6 del ${route}
+
+[Install]
+WantedBy=static-networking.target

@@ -1,0 +1,14 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=Per-user runtime for %I
+#Requires=user@%I.target
+
+[Service]
+RemainAfterExit=true
+User=%I
+
+[Install]
+WantedBy=user@%I.target

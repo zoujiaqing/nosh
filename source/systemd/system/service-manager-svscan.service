@@ -1,0 +1,11 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=Daemontools compatible service scanner
+After=service-manager.socket
+After=service-manager.service
+
+[Service]
+ExecStart=/bin/service-dt-scanner /service/

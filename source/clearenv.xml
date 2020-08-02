@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- **************************************************************************
+.... For copyright and licensing terms, see the file named COPYING.
+.... **************************************************************************
+.-->
+<?xml-stylesheet href="docbook-xml.css" type="text/css"?>
+
+<refentry id="clearenv">
+
+<refmeta xmlns:xi="http://www.w3.org/2001/XInclude">
+<refentrytitle>clearenv</refentrytitle>
+<manvolnum>1</manvolnum>
+<refmiscinfo class="manual">user commands</refmiscinfo>
+<refmiscinfo class="source">nosh</refmiscinfo>
+<xi:include href="version.xml" />
+</refmeta>
+
+<refnamediv><refname>clearenv</refname><refpurpose>clear the entire environment then chain</refpurpose></refnamediv>
+
+<refsynopsisdiv>
+<cmdsynopsis>
+<command>clearenv</command> 
+<arg choice='opt'>--keep-path</arg> 
+<arg choice='opt'>--keep-user</arg> 
+<arg choice='opt'>--keep-shell</arg> 
+<arg choice='opt'>--keep-term</arg> 
+<arg choice='opt'>--keep-locale</arg> 
+<arg choice='req'><replaceable>next-prog</replaceable></arg>
+</cmdsynopsis>
+</refsynopsisdiv>
+
+<refsection><title>Description</title>
+
+<para>
+<command>clearenv</command> is a chain-loading utility that clears the entire environment 
+and then chain loads to <replaceable>next-prog</replaceable> with the <citerefentry><refentrytitle>execvp</refentrytitle><manvolnum>3</manvolnum></citerefentry> function.  
+</para>
+
+<para>
+<replaceable>next-prog</replaceable> may contain its own command line options, which <command>clearenv</command> will ignore.
+</para>
+
+<para>
+When the <arg choice='plain'>--keep-path</arg> command line option is used, <command>clearenv</command> will not clear the <envar>PATH</envar> and <envar>LD_LIBRARY_PATH</envar> environment variables.
+When the <arg choice='plain'>--keep-locale</arg> option is used, it will not clear the environment variables used by the GNU C Library for locale settings, namely <envar>LANG</envar>, <envar>LC_ALL</envar>, <envar>LC_COLLATE</envar>. <envar>LC_CTYPE</envar>, <envar>LC_MESSAGES</envar>, <envar>LC_MONETARY</envar>, <envar>LC_NUMERIC</envar>, and <envar>LC_TIME</envar>.
+Similarly <arg choice='plain'>--keep-shell</arg> stops the clearing of <envar>SHELL</envar>; <arg choice='plain'>--keep-term</arg> stops the clearing of <citerefentry><refentrytitle><envar>TERM</envar></refentrytitle><manvolnum>7</manvolnum></citerefentry>, <envar>COLORTERM</envar>, <envar>XTERM_VERSION</envar>, <envar>VTE_VERSION</envar>, and <envar>TTY</envar>; and <arg choice='plain'>--keep-user</arg> stops the clearing of <envar>HOME</envar>, <envar>USER</envar>, and <envar>LOGNAME</envar>.
+</para>
+
+</refsection><refsection><title>Bugs</title>
+
+<para>
+As of version 1.34 this program no longer employs the GNU C library nor the BSD C library for environment variable handling.
+The previously documented workaround for those libraries' having memory leaks in their <citerefentry><refentrytitle>setenv</refentrytitle><manvolnum>3</manvolnum></citerefentry> and <citerefentry><refentrytitle>clearenv</refentrytitle><manvolnum>3</manvolnum></citerefentry> functions, is therefore no longer necessary.
+</para>
+
+</refsection><refsection><title>See also</title>
+
+<itemizedlist>
+<listitem><para>
+<citerefentry><refentrytitle>unsetenv</refentrytitle><manvolnum>1</manvolnum></citerefentry>
+</para></listitem>
+<listitem><para>
+<citerefentry><refentrytitle>setenv</refentrytitle><manvolnum>1</manvolnum></citerefentry>
+</para></listitem>
+<listitem><para>
+<citerefentry><refentrytitle>envdir</refentrytitle><manvolnum>1</manvolnum></citerefentry>
+</para></listitem>
+<listitem><para>
+<citerefentry><refentrytitle>userenv</refentrytitle><manvolnum>1</manvolnum></citerefentry>
+</para></listitem>
+</itemizedlist>
+
+</refsection><refsection><title>Author</title>
+<para><author><personname><firstname>Jonathan</firstname> <surname>de Boyne Pollard</surname></personname></author></para>
+</refsection>
+
+</refentry>

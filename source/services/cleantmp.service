@@ -1,0 +1,17 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=Clean-up /tmp contents
+
+[Service]
+Type=oneshot
+EnvironmentDirectory=env
+ExecStart=./helper
+# This is a one-shot service that remains running without a main process, because we do not want to run it multiple times.
+RemainAfterExit=true
+Restart=no
+
+[Install]
+WantedBy=workstation.target

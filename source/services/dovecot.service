@@ -1,0 +1,13 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=Dovecot service
+
+[Service]
+ExecStart=%p -F
+ProtectSystem=full
+
+[Install]
+WantedBy=server.target

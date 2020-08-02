@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- **************************************************************************
+.... For copyright and licensing terms, see the file named COPYING.
+.... **************************************************************************
+.-->
+<?xml-stylesheet href="docbook-xml.css" type="text/css"?>
+
+<refentry id="export-to-rsyslog">
+
+<refmeta xmlns:xi="http://www.w3.org/2001/XInclude">
+<refentrytitle>export-to-rsyslog</refentrytitle>
+<manvolnum>1</manvolnum>
+<refmiscinfo class="manual">user commands</refmiscinfo>
+<refmiscinfo class="source">nosh</refmiscinfo>
+<xi:include href="version.xml" />
+</refmeta>
+
+<refnamediv>
+<refname>export-to-rsyslog</refname>
+<refpurpose>export cyclog logs to a remote log stash using the RSYSLOG protocol</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv>
+<cmdsynopsis>
+<command>export-to-rsyslog</command> 
+<arg choice='req'><replaceable>directory</replaceable></arg>
+</cmdsynopsis>
+</refsynopsisdiv>
+
+<refsection><title>Description</title>
+
+<para>
+<command>export-to-rsyslog</command> is a variation on the <citerefentry><refentrytitle>follow-log-directories</refentrytitle><manvolnum>1</manvolnum></citerefentry> command.
+It operates as that command does, with the aid of the cursors in <replaceable>directory</replaceable>, except that instead of writing log lines to its standard output it sends them across the network to an RSYSLOG server.
+</para>
+
+<para>
+It expects to inherit an open file descriptor, for writing each log line that it reads from a log, that is a client of the RSYSLOG server.
+This is file descriptor 7 per the UCSPI convention for client tools.
+</para>
+
+<para>
+It expects the file descriptor to be open for writing to a datagram or message socket or device.
+If it is a socket, it must be already connected so that the <citerefentry><refentrytitle>write</refentrytitle><manvolnum>2</manvolnum></citerefentry> system call works correctly.
+</para>
+
+<para>
+<command>export-to-rsyslog</command> converts log lines that it has read into RFC 5424 form and then writes them to the server.
+It strips trailing newlines from each log line, converts initial TAI64N timestamps, and employs the value of the <envar>TCPLOCALHOST</envar> environment variable (or whatever similar environment variable is denoted by <envar>PROTO</envar>) and the name of the cursor directory in the <replaceable>HOSTNAME</replaceable> and <replaceable>APP-NAME</replaceable> fields.
+It writes each log line with a single system call in order to mark the message boundaries between log lines.
+</para>
+
+<para>
+RFC 3164 form is ambiguous and extremely lossy and is not supported.
+RFC 5424 form is still lossy, but not quite as much since it permits full years and only loses microsecond and nanosecond information.
+</para>
+
+<para>
+<command>export-to-rsyslog</command> treats TAI64N timestamps correctly.
+On a Linux system where it detects an Olson "right" timezone currently in use, it knows that the system clock is TAI seconds since the Epoch and performs a simple conversion to determine system clock time.
+On other Linux systems, and on BSDs, it assumes that the system clock is UTC seconds since the Epoch and attempts to correct for (known) UTC leap seconds in order to determine UTC system clock time.
+</para>
+
+</refsection><refsection><title>Author</title>
+<para><author><personname><firstname>Jonathan</firstname> <surname>de Boyne Pollard</surname></personname></author></para>
+</refsection>
+
+</refentry>

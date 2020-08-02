@@ -1,0 +1,13 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=Nagios NRPE server
+
+[Service]
+User=nagios
+ExecStart=nrpe -c /etc/nagios/nrpe.cfg --inetd
+
+[Install]
+WantedBy=server.target

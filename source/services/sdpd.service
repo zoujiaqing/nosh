@@ -1,0 +1,16 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=Bluetooth Service Discovery Protocol service
+Wants=kmod@ng_btsocket
+After=kmod@ng_btsocket
+
+[Service]
+# The import procedure is expected to have populated this directory with control.
+EnvironmentDirectory=env
+ExecStart=%p -d -c ${control:-/run/%p}
+
+[Install]
+WantedBy=workstation.target

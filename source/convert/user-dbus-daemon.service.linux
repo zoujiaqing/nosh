@@ -1,0 +1,20 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=Per-user "Desktop" bus service
+Description=Avoid using this; and use a user-level service instead.
+After=user-runtime@%I
+Wants=user-runtime@%I
+Conflicts=user-dbus-broker@%I
+
+[Service]
+systemdUserEnvironment=true
+User=%I
+# The --address=systemd: option is the closest to our UCSPI-LOCAL.
+ExecStart=dbus-daemon --config-file ./per-user.conf --nofork --nopidfile --address=systemd:
+Restart=always
+
+[Install]
+WantedBy=user@%I.target

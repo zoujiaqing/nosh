@@ -1,0 +1,12 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=LVS and VRRP High Availability monitor
+
+[Service]
+ExecStart=%p -n
+
+[Install]
+WantedBy=basic.target

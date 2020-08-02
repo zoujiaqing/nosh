@@ -1,0 +1,13 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=OpenStack %p %i server
+
+[Service]
+EnvironmentDirectory=env
+ExecStart=%p-%i /etc/%p/%i-server.conf
+
+[Install]
+WantedBy=server.target

@@ -1,0 +1,92 @@
+#!/bin/sh -e
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+#
+# Note: This script does NOT need to be set-UID/set-GID to anything.
+
+case "${DBUS_STARTER_BUS_TYPE}" in
+system)
+	opts=''
+	run='/run'
+	;;
+session)
+	opts='--user'
+	run="${XDG_RUNTIME_DIR:-/run/user/`id -u`}"
+	;;
+*)
+	echo 1>&2 "$0: ${DBUS_STARTER_BUS_TYPE}: Not a known bus type."
+	exec false
+esac
+
+if test 0 -ge $#
+then
+	echo 1>&2 "Usage: $0 desktop_bus_service_name(s)..."
+	exec false
+fi
+
+if	>/dev/null 2>&1 command -v system-control &&
+	2>/dev/null system-control ${opts} is-service-manager-client
+then
+	for dbus_service
+	do
+		dbus_service="`basename \"${dbus_service}\" .service`"
+		echo "${dbus_service#dbus-}"
+	done | 
+	xargs -- system-control ${opts} -- reset --verbose --
+elif	>/dev/null 2>&1 command -v initctl &&
+	2>/dev/null initctl ${opts} is-service-manager-client
+then
+	for dbus_service
+	do
+		dbus_service="`basename \"${dbus_service}\" .service`"
+		echo "${dbus_service#dbus-}"
+	done | 
+	xargs -- initctl ${opts} -- reset --verbose --
+elif	>/dev/null 2>&1 command -v systemctl &&
+	2>/dev/null systemctl ${opts} is-service-manager-client
+then
+	for dbus_service
+	do
+		dbus_service="`basename \"${dbus_service}\" .service`"
+		echo "${dbus_service#dbus-}"
+	done | 
+	xargs -- systemctl ${opts} -- reset --verbose --
+elif	>/dev/null 2>&1 command -v initctl &&
+	2>/dev/null initctl ${opts} version | grep -F -q upstart
+then
+	for dbus_service
+	do
+		dbus_service="`basename \"${dbus_service}\" .service`"
+		echo "${dbus_service#dbus-}"
+	done | 
+	## Vanilla upstart initctl does not have "reset".
+	xargs -- initctl -- start ${opts} --
+elif	>/dev/null 2>&1 command -v systemctl &&
+	test -S "${run}"/systemd/private
+then
+	for dbus_service
+	do
+		dbus_service="`basename \"${dbus_service}\" .service`"
+		## Vanilla systemd systemctl does not have "reset".
+		if systemctl is-enabled --quiet ${opts} -- "${dbus_service#dbus-}"
+		then
+			systemctl start ${opts} -- "${dbus_service#dbus-}"
+		fi
+	done
+elif	>/dev/null 2>&1 command -v service &&
+	>/dev/null 2>&1 command -v chkconfig
+then
+	for dbus_service
+	do
+		dbus_service="`basename \"${dbus_service}\" .service`"
+		## Vanilla System 5 rc service does not have "reset".
+		if chkconfig ${opts} "${dbus_service#dbus-}" is-enabled
+		then
+			service ${opts} "${dbus_service#dbus-}" start
+		fi
+	done
+else
+	echo 1>&2 "$0: Cannot determine a command for starting services."
+	exec false
+fi

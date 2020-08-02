@@ -1,0 +1,15 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=Target for things to complete before mount of remote filesystems
+EarlySupervise=true
+Before=shutdown.target
+
+[Service]
+User=nobody
+
+[Install]
+StoppedBy=shutdown.target
+WantedBy=workstation.target

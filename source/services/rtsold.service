@@ -1,0 +1,13 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=IPv6 router solicitation daemon
+
+[Service]
+EnvironmentDirectory=env
+ExecStart=%p -f
+
+[Install]
+WantedBy=workstation.target

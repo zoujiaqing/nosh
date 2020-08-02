@@ -1,0 +1,21 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=%p plug-and-play manager daemon
+Description=See http://judecnelson.blogspot.co.uk/2015/01/introducing-vdev.html
+DefaultDependencies=false
+Before=shutdown.target
+After=local-fs.target
+Conflicts=busybox-mdev udev suckless-mdev systemd-udev mdevd
+
+[Service]
+EnvironmentDirectory=env
+ExecStartPre=restorecon -R ${MOUNTPOINT:-/dev}
+ExecStart=%p --foreground --config-file ${CONFIG:-/etc/vdev/vdev.conf} $OPTIONS ${MOUNTPOINT:-/dev}
+RestartSec=5
+
+[Install]
+WantedBy=sysinit.target
+StoppedBy=shutdown.target

@@ -1,0 +1,22 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=MySQL database server
+
+[Service]
+EnvironmentDirectory=env
+ExecStartPre=./helper install_db
+ExecStart=mysqld --defaults-file="${defaultsfile:-/etc/mysql/my.cnf}" ${optfile:+--defaults-extra-file "${optfile}"} --basedir="${basedir:-/usr}" --datadir="${datadir:-%S/mysql}" --plugin-dir="${plugindir:-${basedir:-/usr}/lib/mysql/plugin}" --socket="${socket:-/run/mysqld/mysqld.sock}" --port="${port:-3306}"
+RuntimeDirectory=mysqld
+RuntimeDirectoryMode=0755
+# We do not forcibly kill database servers, for better or for worse.
+SendSIGKILL=false
+User=mysql
+# This works around a security hole in MySQL where it opens sensitive files with predictable names in /tmp/ .
+PrivateTmp=true
+Restart=no
+
+[Install]
+WantedBy=server.target

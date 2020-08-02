@@ -1,0 +1,19 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=Convert /var/run into a symbolic link to /run .
+WantsMountsFor=/var
+AfterMountsFor=/var
+Before=devd ldconfig
+
+[Service]
+Type=oneshot
+ExecStart=./helper
+# This is a one-shot service that can be re-triggered by starting it again.
+#RemainAfterExit=1
+Restart=no
+
+[Install]
+WantedBy=workstation.target

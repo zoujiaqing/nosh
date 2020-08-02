@@ -1,0 +1,16 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=BSD %p for %i
+Wants=%p-log.service
+After=%p-log.service
+
+[Service]
+EnvironmentDirectory=env
+ExecStart=./helper "%i" addm ${patterns}
+ExecStopPre=./helper "%i" deletem ${patterns}
+
+[Install]
+WantedBy=workstation.target

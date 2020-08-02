@@ -1,0 +1,16 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=Go Git Service
+After=local-syslog.target
+After=network.target
+
+[Service]
+LimitNOFILE=65535
+User=git
+ExecStart=%p web
+
+[Install]
+WantedBy=server.target

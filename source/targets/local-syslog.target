@@ -1,0 +1,13 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=local syslog service milestone
+
+[Service]
+User=nobody
+
+[Install]
+WantedBy=workstation.target
+StoppedBy=shutdown.target

@@ -1,0 +1,17 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+# 1-wire is not UCSPI-TCP nor systemd "socket-activated"
+
+[Unit]
+Description=HTTP service via 1-wire's customized version of chttpd
+After=owserver.socket
+
+[Service]
+EnvironmentDirectory=env
+User=%p
+ExecStart=%p --foreground ${flags}
+
+[Install]
+WantedBy=server.target

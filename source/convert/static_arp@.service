@@ -1,0 +1,18 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=BSD static ARP binding for %i
+After=network-runtime.service
+Wants=network-runtime.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+EnvironmentDirectory=env
+ExecStart=arp -S "${addr}" ${dest}
+ExecStopPost=arp -d "${addr}"
+
+[Install]
+WantedBy=static-networking.target

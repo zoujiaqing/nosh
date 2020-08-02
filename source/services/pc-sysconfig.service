@@ -1,0 +1,13 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=Undocumented PC-BSD/TrueOS service
+
+[Service]
+ExecStartPre=rm -f -- /run/%p.pipe
+ExecStart=%p-daemon
+
+[Install]
+WantedBy=workstation.target

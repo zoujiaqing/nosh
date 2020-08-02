@@ -1,0 +1,186 @@
+#!/bin/sh -e
+if test \! -d package || test \! -d bsd
+then
+	echo "You are not in the right directory." 1>&2
+	exit 100
+fi
+if [ $# -lt 2 ]
+then
+	echo "usage: $0 name staging-dir" 1>&2
+	exit 100
+fi
+new_pkg() {
+	local name="$1"
+	local dir="$2"
+	(
+		echo "name: ${name}"
+		echo "prefix: /"
+		echo "origin: local/${name}"
+		echo "comment: ."
+		echo "maintainer: J.deBoynePollard"
+		echo "www: http:/JdeBP.info./Softwares/nosh/"
+		basename `/bin/pwd` | sed -e 's/^.*-\([[:digit:]][[:alnum:].]*\)$/version: "\1"/'
+		if test -r bsd/"${name}".deps
+		then
+			echo "deps: {"
+			while read k
+			do
+				pkg query "  %n: { version: \"%v\", origin: %o }" "$k" || true
+			done < bsd/"${name}".deps
+			echo "}"
+		fi
+		if test -r bsd/"${name}".conflicts
+		then
+			echo "# pkg issue #772 opened 2014-04-09"
+			echo -n "conflicts_is_undocumented_and_broken: ["
+			comma=""
+			while read k
+			do
+				echo -n "${comma} $k"
+				comma=","
+			done < bsd/"${name}".conflicts
+			echo " ]"
+		fi
+		if test -r bsd/"${name}".desc
+		then
+			echo "desc: <<ENDOFTHETEXT"
+			sed -e 's/^/  /' bsd/"${name}".desc
+			echo "ENDOFTHETEXT"
+		fi
+		echo "scripts: {"
+		for j in pre- post-
+		do
+			for k in install deinstall upgrade
+			do
+				s="$j$k"
+				if test -r bsd/"${name}"."$s"
+				then
+					echo "  $s: <<ENDOFTHETEXT"
+					sed -e 's/^/    /' bsd/"${name}"."$s"
+					echo "ENDOFTHETEXT"
+				elif test -r bsd/"${name}".p
+				then
+					if test -r bsd/"$s".funcs
+					then
+						echo "  $s: <<ENDOFTHETEXT"
+						echo "    #!/bin/sh -"
+						if >/dev/null expr "${name}" : "nosh-run-"
+						then
+							echo "    nosh_run_package=YES"
+						fi
+						sed -e 's/^/    /' bsd/"$s".funcs
+						if test -r bsd/"${name}"."$s".extra
+						then
+							sed -e 's/^/    /' bsd/"${name}"."$s".extra
+						fi
+						sed -e 's/^/    /' bsd/"${name}".p
+						echo "ENDOFTHETEXT"
+					fi
+				fi
+			done
+		done
+		echo "}"
+		cd "${dir}"
+		echo "directories: {"
+		for j in *bin usr var etc run
+		do
+			test -d "$j" && find "$j" -type d
+		done | while read k
+		do
+			echo "\"/$k\":" "{" "uname:root;" "gname:wheel;" "perm:`stat -f '%Lp' \"$k\"`;" "}"
+		done
+		echo "}"
+		echo "files: {"
+		for j in *bin usr var etc run
+		do
+			test -d "$j" && find "$j" -type l
+		done | while read k
+		do
+			echo "  " "\"/$k\":" "'-'"
+		done
+		for j in *bin usr var etc run
+		do
+			test -d "$j" && find "$j" -type f
+		done | while read k
+		do
+			echo -n "  " "\"/$k\":" 
+			echo -n " {" "uname:root;" "gname:wheel;"
+			echo -n " sum:`sha256 -q $k`;"
+			echo -n " perm:`stat -f '%Lp' \"$k\"`;"
+			echo " }"
+		done
+		echo "}"
+	) > ${dir}/+MANIFEST
+}
+old_pkg() {
+	local name="$1"
+	local dir="$2"
+	(
+		echo "@name ${name}"
+#		basename `/bin/pwd` | sed -e 's/^.*-\([[:digit:]][[:alnum:].]*\)$/@version "\1"/'
+#		if test -r bsd/"${name}".deps
+#		then
+#			echo "@deps {"
+#			while read k
+#			do
+#				pkg query "  %n: { version: \"%v\", origin: %o }" "$k" || true
+#			done < bsd/"${name}".deps
+#			echo "}"
+#		fi
+#		if test -r bsd/"${name}".conflicts
+#		then
+#			while read k
+#			do
+#				echo "@conflict $k"
+#			done < bsd/"${name}".conflicts
+#		fi
+		if test -r bsd/"${name}".p
+		then
+			if >/dev/null expr "${name}" : "nosh-run-"
+			then
+				awk -f bsd/p-to-oldpkg.run.awk bsd/"${name}".p
+			else
+				awk -f bsd/p-to-oldpkg.bundles.awk bsd/"${name}".p
+			fi
+		fi
+		cd "${dir}"
+		echo "@owner root"
+		echo "@group wheel"
+		for j in *bin usr var etc run
+		do
+			test -d "$j" && find "$j" -type d
+		done | while read k
+		do
+			echo "@mode `stat -f '%Lp' \"$k\"`"
+			echo "@dir $k"
+		done
+		for j in *bin usr var etc run
+		do
+			test -d "$j" && find "$j" -type l
+		done | while read k
+		do
+			echo "@file $k"
+		done
+		echo "@owner root"
+		echo "@group wheel"
+		for j in *bin usr var etc run
+		do
+			test -d "$j" && find "$j" -type f
+		done | while read k
+		do
+			echo "@mode `stat -f '%Lp' \"$k\"`"
+			echo "@file $k"
+		done
+	) > ${dir}/+MANIFEST
+	(
+		if test -r bsd/"${name}".desc
+		then
+			sed -e 's/^/  /' bsd/"${name}".desc
+		fi
+	) > ${dir}/+DESC
+}
+case "`uname`" in
+OpenBSD)	old_pkg "$@" ;;
+*)		new_pkg "$@" ;;
+esac
+true

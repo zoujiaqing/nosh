@@ -1,0 +1,20 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+# This has been superseded by the swaplate target, and a raft of individually-generated swap@ services.
+
+[Unit]
+Description=%p service
+After=swapauto.service
+
+[Service]
+Type=oneshot
+ExecStart=swapon -aL
+ExecStopPost=swapoff -aL
+# This is a pseudo-daemon that does not have a running process.
+RemainAfterExit=yes
+Restart=no
+
+[Install]
+WantedBy=workstation.target

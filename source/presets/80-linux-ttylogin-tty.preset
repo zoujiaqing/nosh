@@ -1,0 +1,17 @@
+#
+# Disable kernel virtual terminal login services
+# Only used on Linux, where there is usually no /etc/ttys to supply this information.
+#
+# This is not a systemd preset.
+# It goes in a special nosh system-manager preset directory.
+# It is used by the nosh-run-kernel-vt package in order to enable TTY login services on kernel virtual terminals.
+#
+
+disable	ttylogin@vc*-tty.service
+disable	cyclog@ttylogin@vc*-tty.service
+
+enable	ttylogin-starter.service
+enable	cyclog@ttylogin-starter.service
+
+disable	ttylogin@tty[0-9]*.service
+disable	cyclog@ttylogin@tty[0-9]*.service

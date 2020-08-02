@@ -1,0 +1,22 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=%p plug-and-play manager daemon
+DefaultDependencies=false
+Before=shutdown.target
+After=local-fs.target local-syslog.target
+Conflicts=busybox-mdev vdev suckless-mdev systemd-udev mdevd
+
+[Service]
+RuntimeDirectory=%p
+EnvironmentDirectory=env
+ExecStart=%pd
+RestartSec=5
+# The nutty default of udevd is to log to the kernel log buffer.
+# Unlike systemd-udevd, udevd has no way of averting this nuttiness.
+
+[Install]
+WantedBy=sysinit.target
+StoppedBy=shutdown.target

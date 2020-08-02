@@ -1,0 +1,12 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=Ruby MailCatcher (http://mailcatcher.me/)
+
+[Service]
+ExecStart=%p --foreground --http-ip 127.0.25.1
+
+[Install]
+WantedBy=server.target

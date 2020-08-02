@@ -1,0 +1,27 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=Virtual console multiplexor driving %I
+
+[Service]
+Umask=0002
+User=user-vt-multiplexor
+# The user-vt-multiplexor user is not a member of this group.
+# Running the multiplexor as this group the group's members realizer access to its I/O files.
+Group=user-vt-realizer
+PermissionsStartOnly=yes
+# This mechanism doesn't permit subdirectories.
+#RuntimeDirectory=dev/%I
+#RuntimeDirectoryMode=02755
+ExecStartPre=install -d -m 00755 /run/dev
+# Files in /run/dev/%I have group user-vt-multiplexor by default, not group user-vt-realizer.
+ExecStartPre=install -d -m 02775 -o user-vt-multiplexor -g user-vt-multiplexor /run/dev/%Imux
+# Not until we find out how to have ACLs in /run on FreeBSD.
+#ExecStartPre=install -d -m 02775 -o root -g user-vt-multiplexor /run/dev/%Imux
+#ExecStartPre=setfacl -m u:user-vt-multiplexor:rwx /run/dev/%Imux
+ExecStart=sh -c 'exec %p /run/dev/%Imux vc[0-9]*'
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,22 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=BSD IP security initialization/shutdown
+DefaultDependencies=no
+Before=server.target networking.target remote-fs-pre.target shutdown.target
+After=local-fs.target
+
+[Service]
+EnvironmentDirectory=env
+ExecStart=${program:-setkey} -f "${file:-/etc/%p.conf}"
+ExecStopPost=${program:-setkey} -F
+ExecStopPost=${program:-setkey} -F -P
+# This is a pseudo-daemon that does not have a running process.
+RemainAfterExit=yes
+Restart=no
+
+[Install]
+StoppedBy=shutdown.target
+WantedBy=workstation.target

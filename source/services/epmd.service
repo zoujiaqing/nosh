@@ -1,0 +1,15 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=Erlang Port Mapper service
+Description=Requires equivalents of Debian 8 or later versions of erlang, whose packaging provides the epmd user.
+Description=Requires version 17.3 erlang which understands the LISTEN_FDS protocol, with the unfortunately named -systemd option.
+
+[Service]
+User=epmd
+ExecStart=%p -systemd
+
+[Install]
+WantedBy=workstation.target

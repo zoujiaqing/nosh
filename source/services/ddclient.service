@@ -1,0 +1,13 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=Dynamic DNS update client
+
+[Service]
+User=%p
+ExecStart=%p --foreground
+
+[Install]
+WantedBy=workstation.target

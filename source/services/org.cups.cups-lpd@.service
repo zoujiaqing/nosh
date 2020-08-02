@@ -1,0 +1,16 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=Common Unix Printing Service's LPD shim
+
+[Service]
+# FIXME: Is this really needed?
+systemdUserEnvironment=true
+EnvironmentDirectory=env
+User=lp
+ExecStart=cupsd-lpd
+
+[Install]
+WantedBy=server.target

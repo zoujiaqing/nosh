@@ -1,0 +1,17 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=Generic FTP socket for IP4
+
+[Socket]
+Backlog=2
+MaxConnections=2
+NoDelay=false
+ListenStream=0:ftp
+UCSPIRules=true
+Accept=true
+
+[Install]
+WantedBy=server.target

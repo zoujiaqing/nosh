@@ -1,0 +1,19 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=OpenSSH listening daemon
+Requires=sshdgenkeys.service
+After=sshdgenkeys.service multi-user-pre.target
+Conflicts=sshd.socket
+
+[Service]
+EnvironmentDirectory=env
+RuntimeDirectory=%p
+RuntimeDirectoryMode=0755
+ExecStart=%p -D -e
+StandardInput=socket
+
+[Install]
+WantedBy=server.target

@@ -1,0 +1,14 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=PulseAudio daemon
+Description=https://freedesktop.org/wiki/Software/PulseAudio/Documentation/User/WhatIsWrongWithSystemWide/
+ 
+[Service]
+PrivateTmp=true
+ExecStart=%p --system --disallow-exit --disallow-module-loading --daemonize=no
+ 
+[Install]
+WantedBy=multi-user.target

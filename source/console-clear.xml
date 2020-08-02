@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- **************************************************************************
+.... For copyright and licensing terms, see the file named COPYING.
+.... **************************************************************************
+.-->
+<?xml-stylesheet href="docbook-xml.css" type="text/css"?>
+
+<refentry id="console-clear">
+
+<refmeta xmlns:xi="http://www.w3.org/2001/XInclude">
+<refentrytitle>console-clear</refentrytitle>
+<manvolnum>1</manvolnum>
+<refmiscinfo class="manual">administrator commands</refmiscinfo>
+<refmiscinfo class="source">nosh</refmiscinfo>
+<xi:include href="version.xml" />
+</refmeta>
+
+<refnamediv>
+<refname>console-clear</refname>
+<refname>clear_console</refname>
+<refpurpose>clear a user-space virtual terminal</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv>
+<cmdsynopsis>
+<command>console-clear</command>
+<arg choice='opt'>--7bit</arg> 
+<arg choice='opt'>--8bit</arg> 
+</cmdsynopsis>
+<cmdsynopsis>
+<command>clear_console</command>
+<arg choice='opt'>--7bit</arg> 
+<arg choice='opt'>--8bit</arg> 
+</cmdsynopsis>
+</refsynopsisdiv>
+
+<refsection><title>Description</title>
+
+<para>
+<command>console-clear</command> emits control sequences to its standard output that instruct a compatible terminal emulator to clear its entire output, both display and any off-screen buffers.
+</para>
+
+<para>
+It does not employ operating system and device specific <citerefentry><refentrytitle>ioctl</refentrytitle><manvolnum>2</manvolnum></citerefentry> calls, and so can be used remotely and with terminal emulators other than the ones built into operating system kernels.
+</para>
+
+<para>
+Rather, it emits simple terminal control sequences, by chaining to <citerefentry><refentrytitle>foreground</refentrytitle><manvolnum>1</manvolnum></citerefentry> in order to run <citerefentry><refentrytitle>console-control-sequence</refentrytitle><manvolnum>1</manvolnum></citerefentry> twice, once with <arg choice='plain'>--clear all</arg> and once with <arg choice='plain'>--clear scrollback</arg>.
+</para>
+
+<para>
+It passes the the <arg choice='plain'>--7bit</arg> and <arg choice='plain'>--8bit</arg> command-line options straight through to <command>console-control-sequence</command>.
+</para>
+
+</refsection>
+
+<refsection id="COMPATIBILITY" xreflabel="COMPATIBILITY">
+<title>Compatibility</title>
+
+<para>
+For compatibility with the Bourne Again shell toolset, this command is also available as <command>clear_console</command>, whose functionality it duplicates.
+Unlike the Bourne Again shell toolset's <command>clear_console</command> command, this command is not specific to kernel virtual terminal character devices, does not involve switching kernel virtual terminals (<ulink url="https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=791342">a process that can go wrong if an X server happens to be using the "other" virtual terminal</ulink>), and respects redirection of its standard output.
+</para>
+
+<para>
+Note that the use case for <command>clear_console</command> is <ulink url="https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=331504">clearing the whole display buffer on user logoff</ulink>, which <citerefentry><refentrytitle>console-terminal-emulator</refentrytitle><manvolnum>1</manvolnum></citerefentry> does anyway, as standard.
+</para>
+
+<para>
+This command makes no attempt to behave differently if its output is not to a terminal, since one might want to use it to generate the control sequences to send to a file, a pipe, or a non-terminal device.
+</para>
+
+<para>
+For compatibility of the actual control sequences emitted with various terminals and terminal emulators, see the <citerefentry><refentrytitle>console-control-sequence</refentrytitle><manvolnum>1</manvolnum></citerefentry> manual.
+</para>
+
+</refsection>
+
+<refsection><title>Author</title>
+<para><author><personname><firstname>Jonathan</firstname> <surname>de Boyne Pollard</surname></personname></author></para>
+</refsection>
+
+</refentry>

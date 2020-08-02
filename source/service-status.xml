@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- **************************************************************************
+.... For copyright and licensing terms, see the file named COPYING.
+.... **************************************************************************
+.-->
+<?xml-stylesheet href="docbook-xml.css" type="text/css"?>
+
+<refentry id="service-status">
+
+<refmeta xmlns:xi="http://www.w3.org/2001/XInclude">
+<refentrytitle>service-status</refentrytitle>
+<manvolnum>1</manvolnum>
+<refmiscinfo class="manual">user commands</refmiscinfo>
+<refmiscinfo class="source">nosh</refmiscinfo>
+<xi:include href="version.xml" />
+</refmeta>
+
+<refnamediv>
+<refname>service-status</refname>
+<refname>svstat</refname>
+<refpurpose>daemontools compatibility service status display</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv>
+<cmdsynopsis>
+<command>service-status</command> 
+<arg choice='opt'>--long</arg>
+<arg choice='opt'>--colour</arg>
+<arg choice='opt'>--log-lines <replaceable>lines</replaceable></arg>
+<arg choice='req' rep='repeat'><replaceable>directory</replaceable></arg>
+</cmdsynopsis>
+<cmdsynopsis>
+<command>svstat</command> <arg choice='req' rep='repeat'><replaceable>directory</replaceable></arg>
+</cmdsynopsis>
+</refsynopsisdiv>
+
+<refsection><title>Description</title>
+
+<para>
+<command>service-status</command> displays human-readable (but not necessarily machine parseable) information about a service that may be currently managed by <citerefentry><refentrytitle>service-manager</refentrytitle><manvolnum>1</manvolnum></citerefentry> (or runit's <citerefentry><refentrytitle>runsv</refentrytitle><manvolnum>1</manvolnum></citerefentry>, s6's <citerefentry><refentrytitle>s6-supervise</refentrytitle><manvolnum>1</manvolnum></citerefentry>, daemontools' <citerefentry><refentrytitle>supervise</refentrytitle><manvolnum>1</manvolnum></citerefentry>, or daemontools-encore's <citerefentry><refentrytitle>supervise</refentrytitle><manvolnum>1</manvolnum></citerefentry>).
+Each <replaceable>directory</replaceable> is either a supervise directory or a daemontools-style service directory with a supervise directory named <filename>supervise</filename> within it.
+</para>
+
+<para>
+For more on service and supervise directories, see <citerefentry><refentrytitle>service-manager</refentrytitle><manvolnum>1</manvolnum></citerefentry>.
+</para>
+
+<para>
+If the standard output is a terminal, <command>service-status</command> uses <citerefentry><refentrytitle>TerminalCapabilities</refentrytitle><manvolnum>3</manvolnum></citerefentry> and an <code>ECMA48Output</code> instance to display various parts of the output in different colours, highlighting different service states in different colours for example.
+The <arg choice='plain'>--colour</arg> command line option tells it to do this unconditionally, even if its standard output is not a terminal.
+</para>
+
+<para>
+The <arg choice='plain'>--long</arg> command line option switches from the default 1-line output form to a multiple-line form.
+This form includes the service's configured enable/disable state, information about its "main" process, and (if it has an associated service accessible via the conventional <filename>log/</filename> name that in turn has its log directory accessible via the conventional <filename>main/</filename> name) the tail end of the service's log, post-processed by the <citerefentry><refentrytitle>tai64nlocal</refentrytitle><manvolnum>1</manvolnum></citerefentry> command.
+The <arg choice='plain'>--log-lines</arg> command passes <replaceable>lines</replaceable> to the <citerefentry><refentrytitle>tail</refentrytitle><manvolnum>1</manvolnum></citerefentry> command with its <arg choice='plain'>-n</arg> option.
+</para>
+
+<para>
+Ready-after-run services have their states reported slightly different to other services.
+Such a service that is in the "stopped" daemontools-encore state will be reported as "done" if its <filename>run</filename> program has been run at least once.
+Such a service that is in the "running" daemontools-encore state will be reported as "started" if its <filename>run</filename> program is still running and "ready" otherwise.
+</para>
+
+</refsection><refsection><title>Compatibility</title>
+
+<para>
+For daemontools and daemontools-encore compatibility, this command is also available as <command>svstat</command>.
+</para>
+
+</refsection><refsection><title>Author</title>
+<para><author><personname><firstname>Jonathan</firstname> <surname>de Boyne Pollard</surname></personname></author></para>
+</refsection>
+
+</refentry>

@@ -1,0 +1,14 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=%p logging service for %I
+Before=%I.service
+
+[Service]
+User=%i-log
+ExecStart=%p %I
+
+[Install]
+WantedBy=workstation.target

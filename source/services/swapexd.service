@@ -1,0 +1,12 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=TrueOS Swap Extender daemon
+
+[Service]
+ExecStart=swapexd
+
+[Install]
+WantedBy=workstation.target

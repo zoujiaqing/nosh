@@ -1,0 +1,13 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=systemd(-compatible) %p service
+
+[Service]
+Type=dbus
+ExecStart=%p
+
+[Install]
+WantedBy=workstation.target

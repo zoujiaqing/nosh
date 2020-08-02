@@ -1,0 +1,13 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=Service manager
+
+[Service]
+SyslogIdentifier=%p
+ExecStart=/bin/exec move-to-control-group systemd.slice %p
+TimeoutSec=10
+# systemd's default file handle limit of 1024 is far too low for normal usage patterns.
+LimitNOFILE=16384

@@ -1,0 +1,14 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=Collector for kernel log messages
+
+[Service]
+User=%p
+ExecStart=klog-read
+# klog-read understands the LISTEN protocol, so does not need StandardInput=socket.
+
+[Install]
+WantedBy=workstation.target

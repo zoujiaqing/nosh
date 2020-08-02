@@ -1,0 +1,16 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=BSD %p for %i
+Wants=kmod@ipdivert.service %p-log.service
+After=kmod@ipdivert.service %p-log.service
+PartOf=netif@%i
+
+[Service]
+EnvironmentDirectory=env
+ExecStart=%p --verbose ${type} "%I" ${dhcp}
+
+[Install]
+WantedBy=netif@%i

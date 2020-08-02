@@ -1,0 +1,14 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=Regular background program processing daemon by Paul Vixie
+
+[Service]
+Type=forking
+EnvironmentDirectory=env
+ExecStart=cron -s -x bit
+
+[Install]
+WantedBy=workstation.target

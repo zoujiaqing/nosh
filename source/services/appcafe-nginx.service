@@ -1,0 +1,21 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=appcafe subsystem: nginx HTTP content server
+
+[Service]
+EnvironmentDirectory=env
+# Per Debian bug #728015, design and implementation errors prevent "daemon off" from working.
+# It's erroneously conflated with a "no signals" mode.
+Type=forking
+# Stupidly, nginx requires an absolute pathname for the configuration file.
+# It also seems to entirely ignore -p and use the dirname of the configuration file instead.
+ExecStart=nginx -g "error_log stderr error;" -c "${PWD}/nginx.conf"
+PrivateTmp=true
+#LimitMEMLOCK=infinity
+#LimitNOFILE=65535
+
+[Install]
+WantedBy=appcafe.target

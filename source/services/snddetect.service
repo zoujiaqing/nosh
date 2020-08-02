@@ -1,0 +1,14 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=TrueOS sound detection
+
+[Service]
+EnvironmentDirectory=env
+ExecStartPre=rm /tmp/unknownSound
+ExecStart=pc-sounddetect
+
+[Install]
+WantedBy=workstation.target

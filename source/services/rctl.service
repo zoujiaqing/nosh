@@ -1,0 +1,19 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=BSD resource limits service
+
+[Service]
+# Marking this as oneshot means that it doesn't enter the "running" state until the rctl command has exited.
+Type=oneshot
+EnvironmentDirectory=env
+ExecStart=pipe sed -n -e '/^[[:space:]]*#/d' -e 's/[[:space:]]*#.*$//g' -- ${rules} | xargs rctl -a --
+ExecStopPost=rctl -r :
+# This is a pseudo-daemon that does not have a running process.
+RemainAfterExit=yes
+Restart=no
+
+[Install]
+WantedBy=workstation.target

@@ -1,0 +1,13 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=Deferred execution scheduler
+Conflicts=atrun
+
+[Service]
+ExecStart=%p -f
+
+[Install]
+WantedBy=workstation.target

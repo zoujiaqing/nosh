@@ -1,0 +1,21 @@
+## **************************************************************************
+## For copyright and licensing terms, see the file named COPYING.
+## **************************************************************************
+
+[Unit]
+Description=Set up kernel virtual terminal screen-saving
+After=kernel-vt-loadkeys.service
+
+[Service]
+Type=oneshot
+TTYPath=tty0
+StandardInput=tty
+StandardError=log
+EnvironmentDirectory=env
+ExecStart=kbdrate ${rate:+-r "${rate}"} ${delay:+-d "${delay}"} ${flags}
+# This is a one-shot service that can be re-triggered by starting it again.
+#RemainAfterExit=1
+Restart=no
+
+[Install]
+WantedBy=workstation.target

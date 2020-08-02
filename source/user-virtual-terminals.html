@@ -1,0 +1,166 @@
+<title>user-space virtual terminals</title>
+<link rel="Up" href="terminals.html" title="Terminals" />
+<link rel="Prev" href="kernel-virtual-terminals.html" title="kernel virtual terminals" />
+<link rel="Next" href="terminal resources.html" title="terminal resources" />
+<h1>
+user-space virtual terminals
+</h1>
+
+<p>
+As an augmentation to, or a complete replacement for, kernel virtual terminals, this package also allows you to set up user-space virtual terminals.
+A user-space virtual terminal comprises at minimum four things:
+</p>
+<ul>
+<li><p>a pseudo-terminal</p></li>
+<li><p><a href="virtual-terminal-login.html">a TUI login service</a> that has the pseudo-terminal as its controlling terminal</p></li>
+<li><p>a console-terminal-emulator process, that conects the pseudo-terminal to a display buffer and an input FIFO</p></li>
+<li><p>one or more realizer processes, that connect the display buffer and input FIFO to real I/O devices of some kind</p></li>
+</ul>
+<p>
+To them can optionally be added:
+</p>
+<ul>
+<li><p>a front-end processor process for running a set of input methods</p></li>
+<li><p>a multiplexor process for mapping one display buffer and input FIFO onto many</p></li>
+</ul>
+
+<p>
+In a plain system, the TUI login service, the terminal emulator process, and the realizer process all run as ordinary services.
+This package comes with service bundles for running <a href="services/head0.html">three user-space virtual terminal emulators (<code>vc1</code>, <code>vc2</code>, and <code>vc3</code>), multiplexed onto a single realizer (<code>head0</code>)</a> through a multiplexor and an input method.
+</p>
+
+<p>
+In a containerized system, the TUI login services and the terminal emulation services run in the container.
+The realizer and console multiplexor services, conversely, run outwith the container.
+One simply directs the (external) console multiplexor service to include the contained user-space virtual terminal devices, alongside any that it already has.
+With the <code>console-multiplexor@head0</code> service bundle that comes in this package, simply symbolically link the contained user-space virtual terminal directories into the multiplexor's service directory before starting it.
+This is nothing more than an instance of the general-case procedure for adding another user-space virtual terminal to a multiplexor service.
+</p>
+<blockquote><pre>ln -s /var/container/run/dev/vc1 /var/sv/console-multiplexor@head0/service/vc9
+ln -s /var/container/run/dev/vc2 /var/sv/console-multiplexor@head0/service/vc10
+ln -s /var/container/run/dev/vc3 /var/sv/console-multiplexor@head0/service/vc11</pre></blockquote>
+</li>
+
+<h2>
+terminal emulator services
+</h2>
+
+<p>
+Each user-space virtual terminal has one service, running <a href="commands/console-terminal-emulator.xml"><code>console-terminal-emulator</code></a>.
+This duplicates the function of the old-style kernel terminal emulator code, but as an application-mode process outwith the kernel.
+</p>
+
+<p>
+It is explicitly <em>not</em> an emulator for any model of real terminal.
+Its function is to correctly cope with the outputs of programs that are using (according to operating system) the <code>linux</code>, <code>cons25</code>, <code>pcvt25</code>, <code>pccon</code>, or <code>teken</code> entries in the termcap/terminfo databases; those being the entries that are used for kernel terminal emulators.
+In other words, one should be able to switch from a kernel virtual terminal to a user-space virtual terminal without changing the terminal type used in the ttylogin service.
+</p>
+
+<p>
+It is the terminal emulator service that creates the <code>tty</code> device file, and so the terminal emulator service must start before any TUI login service for that terminal does.
+A <code>console-terminal-emulator@1.service</code> must be ordered before its corresponding <code>ttylogin@1.service</code> in the startup sequence with an appropriate symbolic link in the latter's service bundle's <code>after/</code> directory, for example.
+</p>
+
+<p>
+Terminal emulator services do not require superuser privileges at any stage; and for best security should be run under the aegis of an unprivileged account dedicated to the service(s).
+</p>
+
+<h2>
+multiplexors
+</h2>
+
+<p>
+A multiplexor service runs <a href="commands/console-multiplexor.xml"><code>console-multiplexor</code></a>.
+This provides a simple screen-switching service that presents one virtual terminal display buffer and input FIFO that is switched amongst one or more other terminal display buffers and input FIFOs.
+This again duplicates the function of the old-style kernel terminal emulator code, but as an application-mode process outwith the kernel.
+</p>
+
+<p>
+Realizers recognize special input gestures (usually keyboard chords, specified in a keyboard map of some kind) for switching screens, which they turn into distinct screen switch messages that are sent to the input FIFO.
+That input FIFO is the one provided by the mutiplexor, which strips these messages out of the input stream (so that the actual terminal emulators "downstream" never see them) and acts upon them, switching amongst the downstream virtual terminals as commanded.
+</p>
+
+<p>
+The <a href="commands/console-multiplexor-control.xml"><code>console-multiplexor-control</code></a> command, also available under the name <code>chvt</code>, generates the same messages.
+A user with sufficient access to the input FIFO, the security concerns of which you can find discussed in the user manual, can programmatically switch a multiplexor between multiple inputs.
+</p>
+
+<p>
+Unlike the kernel virtual terminal system, this system is not limited to just this kind of simple multiplexor.
+One could create more complex multiplexors to provide, say, a multiple pane interface that displayed multiple downstream virtual terminals simultaneously.
+Because the system is composable, this does not require any change to the terminal emulator programs.
+</p>
+
+<h2>
+input method front-end processors
+</h2>
+
+<p>
+An input method front-end processor service runs <a href="commands/console-input-method.xml"><code>console-input-method</code></a>.
+This overlays a pre-editing user interface on top of a virtual terminal, presenting itself as another virtual terminal with its own display buffer and input FIFO.
+</p>
+
+<p>
+When inactive, it operates in simple pass-through mode.
+Active, it injects its user interface near to the underlying display buffer's cursor and intercepts the input messages originating from a realizer, not passing them "downstream" but rather passing downstream the input that the user has pre-edited in its user interface.
+</p>
+
+<p>
+Front-end processing is driven by files containing data tables, determining how character composition is actually performed by the pre-editing.
+The front-end processor can be loaded with several data tables, switching between them on the fly, allowing input to be composed in several CJKV and romaji (i.e. American/European) modes.
+The data files themselves are in a format that has been around for years, and that is common to several input method softwares.
+It is a fairly simple exercise to add and to use one's own data files for custom input methods; and <a href="terminal-resources.html#FEP">a fairly sizeable library of existing methods already exists in the world at large</a>.
+</p>
+
+<p>
+The <a href="commands/console-multiplexor-control.xml"><code>console-input-method-control</code></a> command generates various special input method key messages.
+A user with sufficient access to the input FIFO, the security concerns of which you can find discussed in the user manual, can programmatically switch input method modes and toggle the input method on and off.
+</p>
+
+<h2>
+realizers
+</h2>
+
+<p>
+The relationship between realizers and terminals is many-to-many.
+A realizer may be a simple realizer, that handles just one user-space virtual terminal.
+Or it may be a complex realizer that handles multiple user-space virtual terminals, multiplexing their displays onto its output device, and allowing the user to switch amongst virtual terminals with a hotkey sequence, or a mouse action of some kind.
+One can also attach multiple display-only realizers to a single user-space virtual terminal with no ill-effects.
+All realizers will operate concurrently.
+</p>
+
+<p>
+The lifetimes of realizers do not affect the lifetimes of the associated virtual terminals.
+One can detach all realizers from a user-space virtual terminal, and it will continue operating, its output stored in its display buffer file, unaffected.
+This differentiates user-space virtual terminals from, say, X Window System terminal programs, which signal hangup to the session leader programs running in the terminal when rendering is commanded to close its window.
+</p>
+
+<p>
+Realizers only require access to the files of the user-space virtual terminals that they are attached to, and to the various I/O devices that they are realizing the virtual terminal with.
+The exact security model depends from the kind of realizer, and there are many possible kinds; one could have:
+</p>
+<ul>
+<li><p>
+<a href="commands/console-ncurses-realizer.xml"><code>console-ncurses-realizer</code></a> &mdash; 
+a realizer that uses wide character ncurses (ncursesw) to render one user-space virtual terminal on the terminal that the realizer itself is attached to.
+This realizer needs no additional privileged access to anything apart from the files of the user-space virtual terminal.
+</p></li>
+<li><p>
+<a href="commands/console-termio-realizer.xml"><code>console-termio-realizer</code></a> &mdash; 
+a realizer that uses straight terminal I/O, hardwiring DEC VT, SCO Console, ISO, and ECMA control sequences, to render one user-space virtual terminal on the terminal that the realizer itself is attached to.
+This realizer needs no additional privileged access to anything apart from the files of the user-space virtual terminal.
+</p></li>
+<li><p>
+<a href="commands/console-fb-realizer.xml"><code>console-fb-realizer</code></a> &mdash; 
+a realizer that uses a framebuffer device, and mouse and keyboard input devices, realizing one user-space virtual terminals.
+This realizer needs additional privileged access to the device files, in order to open them at startup, but needs no more privileges than that.
+</p></li>
+<li><p>
+a realizer that realizes multiple user-space virtual terminals using X Window System windows, and allowing one to switch amongst them using hotkeys and mouse actions.
+This realizer initially needs no additional privileged access.
+</p></li>
+<li><p>
+a realizer that realizes one user-space virtual terminal on a Braille device.
+This realizer initially needs additional privileged access to the Braille device file, in order to open it, but can drop privileges afterwards.
+</p></li>
+</ul>
